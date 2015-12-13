@@ -1,4 +1,4 @@
-# Aige
+# Aige (by Eckhard Kirschning)
 #  Aige is development project for the establishment of a Single Page Applicaton (SPA) using Java Script (JS) end-to-end. The focus lies # on the combination of pure JS frontend and backend technologies by pushing UI rendering and business logic to the browser and 
 # communicating with the server and the database only to synchronize data by exchanging data in JSON (JavaScript Serialized Object
 # Notation) format.
