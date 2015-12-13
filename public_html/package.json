@@ -1,0 +1,19 @@
+{
+    "name": "AIGE",
+    "version": "0.0.3",
+    "private": true,
+    "dependencies": {
+        "express": "~4.0.0",
+        "morgan": "~1.0.0",
+        "cookie-parser": "~1.0.1",
+        "body-parser": "~1.0.0",
+           "serve-favicon": "*",
+        "debug": "~0.7.4",
+        "mongodb": "~1.4",
+        "mongoskin": "~1.4.13",
+        "file":"0.2.2"
+  
+  
+    }
+}
+

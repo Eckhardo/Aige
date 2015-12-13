@@ -1,0 +1,76 @@
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+   "comment" : " AIGE Mitgliederliste fuer 2015",
+   "members" : [
+           "551eb42895dbe8a3b30a838",
+           "551eb54c95dbe8a3b30a838a",
+           "55210a0f038139e55c916076",
+           "55210a8f038139e55c916077"
+   ]
+   
+   > db.membership.find().toArray();
+[
+        {
+            
+                "_id" : "aige_2015",
+                "saison" : ISODate("2015-01-31T23:00:00Z"),
+                "comment" : " AIGE Mitgliederliste fuer 2015",
+                "members" : "55213fea038139e55c916078"
+        }
+]
+> var x =  db.membership.find({}, {members:1, '_id':0});
+>  x.toArray();
+[ { "members" : "55213fea038139e55c916078" } ]
+> var y = x.toArray();
+> y.push('551eb42895dbe8a3b30a838');
+2
+> y;
+[ { "members" : "55213fea038139e55c916078" }, "551eb42895dbe8a3b30a838" ]
+> y.push('551eb54c95dbe8a3b30a838a');
+3
+> y;
+[
+        {
+                "members" : "55213fea038139e55c916078"
+        },
+        "551eb42895dbe8a3b30a838",
+        "551eb54c95dbe8a3b30a838a"
+]
+
+
+var set_value= {};
+set_value['members'].push( '55213fea038139e55c916078');
+set_value['members'].push( '551eb42895dbe8a3b30a838');
+set_value['members'].push( '55210a8f038139e55c916077');
+set_value['members'].push( '551eb54c95dbe8a3b30a838a');
+db.membership.update({'name': 'xy'}, {$set: {'year':'1999'} });
+
+db.saison.update({'name': 'Saison 2015', 'myMembers.memberName':'Chrischi'}, {$inc:{'myMembers.$.myEvents':[]});
+#####################
+ db.saison.update({"name": "Saison 2015", "myMembers.memberName":"Chrischi"}, {$set:{"myMembers.$.myEvents":[]}});
+ ###################
+db.saison.update({'name': 'Saison 2022', 'myMembers.memberName':'Chrischi'}, {$inc:{'myMembers.$.myEvents':[]});
+db.member.insert( {'firstname': 'Christian', 'lastname':'Adloff', 'username': 'Chrischi', 'password': 'abc', 'email': 'chris.adloff@freenet.de', 'zip':'25451', 'city':'Quickborn', 'address':'Eschenweg 9','phone':'04106 2257', 'mobil':'0160776655', 'admissionDate':'2000', 'isAdmin':false, 'isActive':true});
+db.member.insert({'firstname': 'Frank', 'lastname':'Schneider', 'username': 'Frankie', 'password': 'abc', 'email': 'frank.schneider@freenet.de', 'zip':'25451', 'city':'Quickborn', 'address':'Ulzuburger Landstrasse 89','phone':'04106 2233', 'mobil':'0160224466', 'admissionDate':'2000', 'isAdmin':false, 'isActive':true});
+db.member.insert( {'firstname': 'Serafim', 'lastname':'Skafidas', 'username': 'Skaffi', 'password': 'abc', 'email': 's.skafidas@freenet.de', 'zip':'25451', 'city':'Quickborn', 'address':'Kieler Strasse 6','phone':'04106 4457', 'mobil':'0160223880', 'admissionDate':'1990', 'isAdmin':false, 'isActive':true});
+db.member.insert({'firstname': 'Torsten', 'lastname':'Kitzmann', 'username': 'Kommu', 'password': 'abc', 'email': 'torsten.kitzmann@freenet.de', 'zip':'25452', 'city':'Hasloh', 'address':'Dorfstrassse 89','phone':'04106 123', 'mobil':'0160999453', 'admissionDate':'1996', 'isAdmin':false, 'isActive':false});
+db.member.insert({'firstname': 'Eckhard', 'lastname':'Kirschning', 'username': 'Ecki', 'password': 'abc', 'email': 'eckhard.kirschning@freenet.de', 'zip':'20255', 'city':'Hamburg', 'address':'Lutterothtstrasse 89','phone':'040 4913646', 'mobil':'016097023201', 'admissionDate':'2007', 'isAdmin':true, 'isActive':true});
+
+// wie bekomme ich die member in membership rein?
+ var members= db.member.find({}, {_id:1}).toArray();varvar
+ var set_value= {};
+ set_value['members'] =members;
+
+ db.member.update({_id: 'aige_2015'}, {$set: set_value});
+
+
+var set_value= {};
+set_value['members'].push( '55213fea038139e55c916078');
+set_value['members'].push( '551eb42895dbe8a3b30a838');
+set_value['members'].push( '55210a8f038139e55c916077');
+set_value['members'].push( '551eb54c95dbe8a3b30a838a');
+db.membership.update({_id: 'aige_2015'}, {$set: set_value });
+ 
