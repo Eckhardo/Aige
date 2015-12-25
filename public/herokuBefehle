@@ -1,0 +1,17 @@
+heroku open: remote open
+heroku local: localhost open
+heroku login 1af112AB
+
+git push heroku master
+
+
+heroku addons:create papertrail
+heroku addons
+heroku addons:open papertrail  // opens console logs
+
+heroku run bash // Zugriff auf das Root Verzeichnis.
+MONGOLAB_URI:     
+    mongodb://heroku_b6ds1xg5:ll9prurravj4b08fhg08vg3djb@ds035965.mongolab.com:35965/heroku_b6ds1xg5
+
+heroku addons:docs mongolab
+

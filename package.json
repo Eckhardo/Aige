@@ -1,7 +1,7 @@
 {
   "name": "aige",
   "version": "0.1.5",
-  "description": "A sample Node.js app using Express 4",
+  "description": "A Node.js app using Express 4 and MongoDB",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
