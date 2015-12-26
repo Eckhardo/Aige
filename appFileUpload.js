@@ -1,7 +1,7 @@
 
 
 //C:\Users\ekirschning\AppData\Local\Apps\cURL\bin>
-// curl --upload-file myFile.txt http://localhost:3000
+// curl --upload-file myFile.txt http://localhost:5000
 
 
 // ------------ BEGIN MODULE SCOPE VARIABLES --------------
@@ -44,5 +44,5 @@ http.createServer(function (request, response) {
         console.log("error=" + err);
 
     });
-  }).listen(3000);
+  }).listen(5000);
 

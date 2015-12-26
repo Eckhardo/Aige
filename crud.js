@@ -20,7 +20,7 @@ var checkType, constructObject, readObject, updateObject,
 
 mongo = require('mongoskin');
 ObjectID = mongo.ObjectID;
-db = mongo.db("mongodb://heroku_b6ds1xg5:ll9prurravj4b08fhg08vg3djb@ds035965.mongolab.com:35965/heroku_b6ds1xg5", {native_parser: true});
+db = mongo.db("mongodb://heroku_0km7pw02:fhqjappnkttvhhfk8ll6ddqku2@ds035975.mongolab.com:35975/heroku_0km7pw02", {native_parser: true});
 
 objectTypeMap = {'member': {}, 'membership': {}, 'event': {}, 'saison': {}};
 //------------- END MODULE SCOPED VARIABLES ------------------

@@ -10,8 +10,18 @@ heroku addons
 heroku addons:open papertrail  // opens console logs
 
 heroku run bash // Zugriff auf das Root Verzeichnis.
+
+heroku addons:create mongolab
+ heroku config | grep MONGOLAB_URI
 MONGOLAB_URI:     
     mongodb://heroku_b6ds1xg5:ll9prurravj4b08fhg08vg3djb@ds035965.mongolab.com:35965/heroku_b6ds1xg5
 
+
+{ user: "heroku_b6ds1xg5", account: "heroku_b6ds1xg5" }
+
 heroku addons:docs mongolab
+// Migarion der Region
+heroku fork --from sourceapp --to targetapp --region eu
+
+ heroku domains:remove -a aige www.example.com
 
