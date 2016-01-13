@@ -27,85 +27,61 @@ aige.model = (function () {
     stateMap = {
         count_db_result: null,
         member_id_map: {},
-        membership_id_map: {},
         event_id_map: {},
-        saison_id_map: {},
+        current_saison: null,
         current_member: null,
         current_membership: null,
-        current_saison: null,
         member_list: [],
-        membership_list: [],
         event_list: [],
-        saison_list: [],
         unreg_membership_events: [],
         unreg_membership_members: [],
         ajaxCall: null
 
     },
-    general, member, membership, event, saison, initModule, configModule;
+    general, member, membership, event, initModule, configModule, clear_state_maps, fill_state_maps;
 
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //----------------- START UTILITY FUNCTIONS-----------------
-    function  clear_state_maps(object_type) {
+   clear_state_maps = function (object_type) {
         console.log("clear state maps");
         if (object_type === configMap.objectTypes.member) {
             stateMap.member_list = [];
             stateMap.member_id_map = {};
-        }
-        else if (object_type === configMap.objectTypes.membership) {
-            stateMap.membership_list = [];
-            stateMap.membership_id_map = {};
-            stateMap.current_membership = null;
-        }
-        else if (object_type === configMap.objectTypes.event) {
+        } else if (object_type === configMap.objectTypes.event) {
             stateMap.event_list = [];
             stateMap.event_id_map = {};
-        }
-        else if (object_type === configMap.objectTypes.saison) {
-            stateMap.saison_list = [];
-            stateMap.saison_id_map = {};
+        } else if (object_type === configMap.objectTypes.membership) {
+            stateMap.current_membership = null;
+        } else if (object_type === configMap.objectTypes.saison) {
             stateMap.current_saison = null;
         }
     }
     ;
-    function fill_state_maps(object_type, item_list) {
+     fill_state_maps = function (object_type, item_list) {
         console.log("fill state maps");
-        var i = 0, my_member, my_event, my_membership, my_saison;
+        var i = 0, my_member, my_event, my_membership;
         if (object_type === configMap.objectTypes.member) {
             stateMap.member_list = item_list;
             for (i = 0; i < stateMap.member_list.length; i++) {
                 my_member = stateMap.member_list[i];
                 stateMap.member_id_map[my_member._id] = my_member;
             }
-        }
-        else if (object_type === configMap.objectTypes.membership) {
-            stateMap.membership_list = item_list;
-            for (i = 0; i < stateMap.membership_list.length; i++) {
-                stateMap.current_membership = stateMap.membership_list[i];
-                my_membership = stateMap.membership_list[i];
-                if (my_membership.isActive) {
-                    stateMap.current_membership = my_membership;
-
-                }
-                stateMap.membership_id_map[my_membership._id] = my_membership;
-            }
-        }
-        else if (object_type === configMap.objectTypes.event) {
+        } else if (object_type === configMap.objectTypes.event) {
             stateMap.event_list = item_list;
             for (i = 0; i < stateMap.event_list.length; i++) {
                 my_event = stateMap.event_list[i];
                 stateMap.event_id_map[my_event._id] = my_event;
             }
-        }
-        else if (object_type === configMap.objectTypes.saison) {
-            console.log("fill saison state map");
-            stateMap.saison_list = item_list;
-            for (i = 0; i < stateMap.saison_list.length; i++) {
-                my_saison = stateMap.saison_list[i];
-
-                stateMap.current_saison = my_saison;
-                stateMap.saison_id_map[my_saison._id] = my_saison;
+        } else if (object_type === configMap.objectTypes.membership) {
+            ;
+            for (i = 0; i < item_list.length; i++) {
+                stateMap.current_membership = item_list[i];
+            }
+        } else if (object_type === configMap.objectTypes.saison) {
+            for (i = 0; i < item_list.length; i++) {
+                stateMap.current_saison = item_list[i];
+                break;
             }
         }
     }
@@ -130,7 +106,8 @@ aige.model = (function () {
                 create_item,
                 update_item,
                 get_by_id,
-                get_items;
+                get_items,
+                get_current_item;
 
 
         count_db_action = function () {
@@ -170,9 +147,9 @@ aige.model = (function () {
          */
         search = function (object_type, searchParams, callback) {
 
-            var find_all_promise = stateMap.ajaxCall.search(object_type, searchParams);
+            var search_promise = stateMap.ajaxCall.search(object_type, searchParams);
 
-            find_all_promise.done(function (item_list) {
+            search_promise.done(function (item_list) {
                 console.log("search result = " + JSON.stringify(item_list));
                 clear_state_maps(object_type);
                 fill_state_maps(object_type, item_list);
@@ -203,8 +180,7 @@ aige.model = (function () {
                 stateMap.count_db_result = countDeletes;
                 if (searchParams) {
                     find_all_promise = stateMap.ajaxCall.search(object_type, searchParams);
-                }
-                else {
+                } else {
                     find_all_promise = stateMap.ajaxCall.findAll(object_type);
                 }
                 find_all_promise.done(function (item_list) {
@@ -233,14 +209,13 @@ aige.model = (function () {
          * @returns {undefined}
          */
         inactivate_item = function (object_type, item_id, callback, searchParams) {
-            var find_all_promise, deletePromise = stateMap.ajaxCall.deactivateItem(object_type, item_id);
+            var find_all_promise, inactivate_promise = stateMap.ajaxCall.deactivateItem(object_type, item_id);
             clear_state_maps(object_type);
-            deletePromise.done(function (countDeletes) {
+            inactivate_promise.done(function (countDeletes) {
                 stateMap.count_db_result = countDeletes;
                 if (searchParams) {
                     find_all_promise = stateMap.ajaxCall.search(object_type, searchParams);
-                }
-                else {
+                } else {
                     find_all_promise = stateMap.ajaxCall.findAll(object_type);
                 }
                 find_all_promise.done(function (item_list) {
@@ -276,8 +251,7 @@ aige.model = (function () {
                 stateMap.count_db_result = count_inserts;
                 if (searchParams) {
                     find_all_promise = stateMap.ajaxCall.search(object_type, searchParams);
-                }
-                else {
+                } else {
                     find_all_promise = stateMap.ajaxCall.findAll(object_type);
                 }
                 find_all_promise.done(function (item_list) {
@@ -313,8 +287,7 @@ aige.model = (function () {
                 stateMap.count_db_result = count_updates;
                 if (searchParams) {
                     find_all_promise = stateMap.ajaxCall.search(object_type, searchParams);
-                }
-                else {
+                } else {
                     find_all_promise = stateMap.ajaxCall.findAll(object_type);
                 }
                 find_all_promise.done(function (item_list) {
@@ -337,41 +310,43 @@ aige.model = (function () {
          * 
          * @param {type} object_type
          * @param {type} id
-         * @returns {stateMap.saison_id_map|stateMap.membership_id_map|stateMap.event_id_map|stateMap.member_id_map}
+         * @returns {stateMap.event_id_map|stateMap.member_id_map}
          */
         get_by_id = function (object_type, id) {
             if (object_type === configMap.objectTypes.member) {
                 return stateMap.member_id_map[id];
-            }
-            else if (object_type === configMap.objectTypes.membership) {
-                return stateMap.membership_id_map[id];
-            }
-            else if (object_type === configMap.objectTypes.event) {
+            } else if (object_type === configMap.objectTypes.event) {
                 return stateMap.event_id_map[id];
-            }
-            else if (object_type === configMap.objectTypes.saison) {
-                return stateMap.saison_id_map[id];
+            } else {
+                throw Error("object type not suported: " + object_type);
             }
         };
         /**
          * 
          * @param {type} object_type
-         * @returns {Array|stateMap.member_list|stateMap.saison_list|stateMap.membership_list|stateMap.event_list}
+         * @returns {Array|stateMap.member_list|stateMap.event_list}
          */
         get_items = function (object_type) {
 
-            console.log(" get items");
+
             if (object_type === configMap.objectTypes.member) {
                 return stateMap.member_list;
-            }
-            else if (object_type === configMap.objectTypes.membership) {
-                return stateMap.membership_list;
-            }
-            else if (object_type === configMap.objectTypes.event) {
+            } else if (object_type === configMap.objectTypes.event) {
                 return stateMap.event_list;
+            } else {
+                throw Error("object type not suported: " + object_type);
             }
-            else if (object_type === configMap.objectTypes.saison) {
-                return stateMap.saison_list;
+        };
+
+        get_current_item = function (object_type) {
+            if (object_type === configMap.objectTypes.member) {
+                return stateMap.current_member;
+            } else if (object_type === configMap.objectTypes.membership) {
+                return stateMap.current_membership;
+            } else if (object_type === configMap.objectTypes.saison) {
+                return stateMap.current_saison;
+            } else {
+                throw Error("object type not suported: " + object_type);
             }
         };
 
@@ -383,7 +358,9 @@ aige.model = (function () {
             updateItem: update_item,
             countResult: count_db_action,
             getById: get_by_id,
-            getItems: get_items};
+            getItems: get_items,
+            getCurrentItem: get_current_item
+        };
     }());
 
     // The model.member object API
@@ -402,8 +379,7 @@ aige.model = (function () {
                 if ($.isEmptyObject(result)) {
                     var error = new Error("Unbekannter Benutzer");
                     $.gevent.publish('login-fail', {error: error});
-                }
-                else {
+                } else {
                     localStorage.setItem("member", JSON.stringify(result));
                     stateMap.current_member = result;
                     $.gevent.publish('login-success', result);
@@ -442,7 +418,7 @@ aige.model = (function () {
     //
     membership = (function () {
         var get_unregistered_events,
-                get_unregistered_members, find_inactive_items, get_current_membership;
+                get_unregistered_members, find_inactive_items;
 
 
         get_unregistered_events = function () {
@@ -451,9 +427,7 @@ aige.model = (function () {
         get_unregistered_members = function () {
             return stateMap.unreg_membership_members;
         };
-        get_current_membership = function () {
-            return stateMap.current_membership;
-        };
+
 
         /**
          * 
@@ -468,8 +442,7 @@ aige.model = (function () {
             var find_events_promise, find_members_promise, i, myMember, myEvent;
             if (searchParams) {
                 find_events_promise = stateMap.ajaxCall.search(configMap.objectTypes.event, searchParams);
-            }
-            else {
+            } else {
                 find_events_promise = stateMap.ajaxCall.findAll(configMap.objectTypes.event);
             }
             find_members_promise = stateMap.ajaxCall.findAll(configMap.objectTypes.member);
@@ -503,7 +476,6 @@ aige.model = (function () {
 
         return {getUnregisteredEvents: get_unregistered_events,
             getUnregisteredMembers: get_unregistered_members,
-            getCurrentMembership: get_current_membership,
             findInactiveItems: find_inactive_items
         };
     }());
@@ -594,199 +566,7 @@ aige.model = (function () {
         return {searchByNames: searchByNames,
             makeEventObject: makeEventObject};
     }());
-// The model.saison object API
-    // -------------------
-    // This APi comprises saison specific public methods and works closely together
-    // with the   model.general object API (this provides generic methods for CRUD, and places the results
-    // via the whole model available methods fill_state_maps.
-    // The membership object is available at aige.model.membeship.
-    // The membership object provides dinstinct methods  to manage
-    // memberships. Its public methods include:
-    //  * getMembershipById(<id>) - retrieves a membership by its ID using
-    //  stateMap.membership_id_map.
-    //  * getCurrentMembership() - return the single one active membership,
-    //    (only the membership of the current year can be active).
-    //  * getMembershipList() - retrieves ALL memberships.
-    //  * getUnregisteredEvents() - retrieves all events that have not yet been registered.
-    //  *getUnregisteredMembers() -retrieves all members that have not yet been registered.
-    //  *findInactiveItems(<memberArray>, <eventArray>, callback  ) -an aige.model.membership-specific 
-    //  data retrieval call that retrieves ALL events and ALL members by an ajax call, and later
-    //  filters those events and those members, that do not match to the input parameters. These non-matching
-    //  events and members are put to stateMap.unregEbvents and stateMap.unregMembers; The callback's only duty is to
-    //  captures errors, which can be handled by the feature module aige.membership.
-    //
-    saison = (function () {
-        var make_saison, create_saison, update_member_events,
-                get_saison_by_membership_id, get_current_saison, get_saison_for_member;
 
-        //
-
-        make_saison = function (membership_map) {
-            return new AigeSaison(membership_map);
-        };
-
-        var AigeSaison = function (membership_map) {
-            if (membership_map) {
-
-                console.log("ms = " + JSON.stringify(membership_map));
-
-                this.year = membership_map.year;
-                this.name = membership_map.name;
-                this.comment = membership_map.comment;
-                this.isActive = membership_map.isActive;
-                this.events = membership_map.events;
-                this.memberEvents = [];
-
-
-                var i, j, myMember, myEvent;
-
-                for (i = 0; i <= membership_map.members.length; i++) {
-                    myMember = {memberName: membership_map.members[i], saisonEvents: []};
-                    for (j = 0; j < this.events.length; j++) {
-                        myEvent = {eventName: this.events[j], confirmed: false, tookPart: false};
-                        myMember.saisonEvents.push(myEvent);
-                    }
-                    this.memberEvents.push(myMember);
-                }
-            }
-            return this;
-        };
-
-        /**
-         * 
-         */
-        AigeSaison.prototype.saisonProto = {
-            get_is_active: function () {
-                return this.isActive;
-            }
-        };
-        /**
-         * 
-         * @param {type} membership
-         * @param {type} callback
-         * @returns {undefined}
-         */
-        create_saison = function (membership, callback) {
-            stateMap.current_saison = make_saison(membership);
-            console.log("current saison new =" + JSON.stringify(stateMap.current_saison));
-
-            aige.model.general.createItem(configMap.objectTypes.saison, stateMap.current_saison, function (error) {
-                if (error) {
-                    callback(error);
-                }
-                else {
-                    callback(null);
-                }
-            });
-        };
-
-
-        /**
-         * This routine captures user inputs (checked/unchecked checkboxes represening whether a user 
-         * would confimr to take part at an event and/or actually took part (for hsitory).
-         * @param {type} saisonId the saison
-         * @param {type} memberName the member of choice for the sasion
-         * @param {type} checkedFormParamEventKeys - checked checkboxes representing whehther
-         *  an event is confirmed and/or tookPart
-         * @param {type} eventKeyValues - the 'original' values (confimred && || tookpart) for each event
-         * @param {type} callback a callback thhat handles errors and delegates to the view.
-         * @returns {undefined}
-         */
-        update_member_events = function (saisonId, memberName, checkedFormParamEventKeys, eventKeyValues, callback) {
-            console.log("checkedFormParamEventKeys=" + JSON.stringify(checkedFormParamEventKeys));
-            console.log("eventKeyValues=" + JSON.stringify(eventKeyValues));
-            var saisonEvents = extractSaisonEvents(checkedFormParamEventKeys, eventKeyValues),
-                    searchParams = {searchParams: {isActive: true}}, update_promise, find_all_promise;
-            console.log("saisonEvents=" + JSON.stringify(saisonEvents));
-            update_promise = stateMap.ajaxCall.updateEvents(configMap.objectTypes.saison, saisonId, memberName, saisonEvents);
-            clear_state_maps(configMap.objectTypes.saison);
-            update_promise.done(function (count_updates) {
-                stateMap.count_db_result = count_updates;
-                find_all_promise = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
-                find_all_promise.done(function (item_list) {
-                    fill_state_maps(configMap.objectTypes.saison, item_list);
-                    callback(null);
-                }).fail(function (error) {
-                    setTimeout(function () {
-                        callback(error);
-                    }, 3000);
-                });
-            }).fail(function (error) {
-                setTimeout(function () {
-                    callback(error);
-                }, 3000);
-            });
-
-        };
-        function extractSaisonEvents(checkedFormParamEventKeys, eventKeyValues) {
-            var saisonEvents = [], myEvent = {}, eventName, latestEventName, createNewEvent, j = 0;
-            for (var field in eventKeyValues) {
-                if (eventKeyValues.hasOwnProperty(field)) {
-                    var saison_event = eventKeyValues[field];
-                    for (var event_key in saison_event) {
-                        var eventNameStatusNameArray = event_key.split("XYZ", event_key.length);
-                        for (j = 0; j < eventNameStatusNameArray.length; j++) {
-                            if (j === 0) {
-                                eventName = eventNameStatusNameArray[j];
-                                latestEventName === eventName ? createNewEvent = true :
-                                        myEvent.eventName = eventName;
-                            }
-                            else {
-                                if (checkedFormParamEventKeys[event_key]) {
-                                    eventNameStatusNameArray[j] === "confirmed" ?
-                                            myEvent.confirmed = true : myEvent.tookPart = true;
-                                }
-                                else {
-                                    eventNameStatusNameArray[j] === "confirmed" ?
-                                            myEvent.confirmed = false : myEvent.tookPart = false;
-
-                                }
-                            }
-                        }
-
-                    }
-                    if (createNewEvent) {
-                        saisonEvents.push(myEvent);
-                        myEvent = {};
-                        createNewEvent = false;
-                    }
-
-                    latestEventName = eventName;
-                }
-            }
-            return saisonEvents;
-        }
-
-        get_saison_for_member = function (name, callback) {
-            
-            var result, members = stateMap.current_saison.memberEvents,
-            membersLength = members.length;
-
-            for (var i = 0; i < membersLength; i++) {
-                if (members[i].memberName === name) {
-                   result=  members[i];
-                   break;
-                }
-            }
-            callback(result);
-        };
-
-
-        get_current_saison = function () {
-            return stateMap.current_saison;
-        };
-
-        get_saison_by_membership_id = function (membership_id) {
-            return stateMap.saison_id_map[membership_id];
-        };
-
-        return {
-            getSaisonByMembershipId: get_saison_by_membership_id,
-            createSaison: create_saison,
-            updateMemberEvents: update_member_events,
-            getSaisonForMember: get_saison_for_member,
-            getCurrentSaison: get_current_saison};
-    }());
     //------------------- BEGIN PUBLIC METHODS -------------------
     // Begin public method /configModule/
     // Purpose    : Adjust configuration of allowed keys
@@ -824,11 +604,12 @@ aige.model = (function () {
     return {
         configModule: configModule,
         initModule: initModule,
+        clearStateMaps: clear_state_maps,
+        fillStateMaps:fill_state_maps,
         general: general,
         member: member,
         membership: membership,
-        event: event,
-        saison: saison
+        event: event
     };
     //------------------- END PUBLIC METHODS ---------------------
 }());

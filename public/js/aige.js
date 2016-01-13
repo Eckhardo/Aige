@@ -28,8 +28,12 @@ var aige = (function () {
         aige.data.initModule();
         aige.model.configModule(
                 {objectTypes: configMap.objectTypes}
-                );
+        );
         aige.model.initModule();
+        aige.model.saison.configModule(
+                {objectTypes: configMap.objectTypes}
+        );
+        aige.model.saison.initModule();
         aige.shell.initModule($container);
 
     };

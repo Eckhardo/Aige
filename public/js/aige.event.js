@@ -323,7 +323,7 @@ aige.event = (function () {
             jqueryMap.$eventFormPopup.find("#headerEventFormPopup").text("Neues Mitglied anlegen");
             jqueryMap.$eventFormPopup.fadeIn();
             jqueryMap.$eventForm.find("#txtEventYear").val($('#txtEventGroupYear').val());
-            jqueryMap.$eventForm.find("#txtEventType").attr("disabled", false);
+            jqueryMap.$eventForm.find("#txtEventType").children().prop("disabled", false);
             jqueryMap.$eventForm.find("#txtEventType").focus();
             jqueryMap.$eventForm.find("#txtEventName").prop("readonly", false);
             jqueryMap.$overlay.fadeIn();

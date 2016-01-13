@@ -1,0 +1,29 @@
+
+        "firstname" : "Eckhard",
+        "lastname" : "Kirschning",
+        "username" : "Ecki",
+        "password" : "abc",
+        "email" : "eckhard.kirschning@freenet.de",
+        "zip" : "20259",
+        "city" : "Hamburg",
+        "address" : "Lutterothtstrasse 89",
+        "phone" : "",
+        "mobil" : "016097023201",
+        "admissionDate" : "2011",
+        "isAdmin" : "true",
+        "isActive" : "true"
+
+
+       "firstname" : "Frank",
+        "lastname" : "Schneider",
+        "username" : "Frankie",
+        "password" : "abc",
+        "email" : "frank.schneider@freenet.de",
+        "zip" : "25451",
+        "city" : "Quickborn",
+        "address" : "Ulzburger Landstrasse 89",
+        "phone" : "04106 2233",
+        "mobil" : "0160224466",
+        "admissionDate" : "2000",
+        "isAdmin" : "false",
+        "isActive" : "true"

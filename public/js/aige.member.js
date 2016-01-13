@@ -205,8 +205,7 @@ aige.member = (function () {
         console.log("is admin=" + stateMap.currentMember.isAdmin);
         if (stateMap.currentMember.isAdmin) {
             jqueryMap.$adminMemberList.find('#btnCreateMember').fadeIn();
-        }
-        else {
+        } else {
             jqueryMap.$adminMemberList.find('#btnCreateMember').hide();
         }
 
@@ -250,19 +249,25 @@ aige.member = (function () {
         jqueryMap.$contentWrapper.children().hide();
         configMap.general_model.findAll(configMap.object_type, memberCallback);
     };
-
+/**
+ * Inactivates the selected member. And in a second step the selected member is deleted also from
+ * the corresponding membership of the current year (if it already exists);
+ * 
+ * @param {type} event
+ * @returns {Boolean}
+ */
     onDeleteMember = function (event) {
         stateMap.currentAction = configMap.actionTypes.delete;
         event.preventDefault();
 
         stateMap.selectedMemberId = $(this).attr("alt").replace("Delete", "");
-        var theMember=null;
+        var theMember = null;
         if (stateMap.currentMember.isAdmin || stateMap.selectedMemberId === stateMap.currentMember._id) {
-           theMember = configMap.general_model.getById(configMap.object_type, stateMap.selectedMemberId);
-            if (!confirm("Willst Du wirklich [" + theMember.username + "] loeschen?")) {
+            theMember = configMap.general_model.getById(configMap.object_type, stateMap.selectedMemberId);
+            if (!confirm("Willst Du wirklich [" + theMember.username + "] inaktivieren ?")) {
                 return false;
             }
-            configMap.general_model.deleteItem(configMap.object_type, theMember._id, memberCallback);
+            configMap.general_model.inactivateItem(configMap.object_type, theMember._id, memberCallback);
         }
 
     };
@@ -271,9 +276,9 @@ aige.member = (function () {
         stateMap.currentAction = configMap.actionTypes.update;
         stateMap.saveIsEdit = true;
         stateMap.selectedMemberId = $(this).attr("alt").replace("Edit", "");
-        console.log("id = "+stateMap.selectedMemberId);
-        var theMember=configMap.general_model.getById(configMap.object_type,stateMap.selectedMemberId);
-      
+        console.log("id = " + stateMap.selectedMemberId);
+        var theMember = configMap.general_model.getById(configMap.object_type, stateMap.selectedMemberId);
+
         if (stateMap.currentMember.isAdmin || stateMap.selectedMemberId === stateMap.currentMember._id) {
             jqueryMap.$memberForm.find("#txtID").val(theMember._id);
             jqueryMap.$memberForm.find("#txtVorname").val(theMember.firstname);
@@ -288,7 +293,7 @@ aige.member = (function () {
             jqueryMap.$memberForm.find("#txtMobil").val(theMember.mobil);
             jqueryMap.$memberForm.find("#txtAdmissionDate").val(theMember.admissionDate);
             jqueryMap.$memberForm.find("#txtIsActive").prop("checked", theMember.isActive);
-             jqueryMap.$memberForm.find("#txtVorname").focus();
+            jqueryMap.$memberForm.find("#txtVorname").focus();
             aige.util.updatePopup(jqueryMap.$memberFormPopup);
             jqueryMap.$memberFormPopup.show();
             jqueryMap.$overlay.fadeIn();
@@ -318,7 +323,7 @@ aige.member = (function () {
 
             return false;
         }
-       var theMember = {
+        var theMember = {
             _id: jqueryMap.$memberForm.find('#txtID').val(),
             firstname: jqueryMap.$memberForm.find('#txtVorname').val(),
             lastname: jqueryMap.$memberForm.find('#txtNachname').val(),
@@ -333,7 +338,7 @@ aige.member = (function () {
             isActive: jqueryMap.$memberForm.find('#txtIsActive').is(":checked"),
             isAdmin: jqueryMap.$memberForm.find('#txtIsAdmin').is(":checked")
         };
-        
+
         console.log(" der neue= " + JSON.stringify(theMember));
 
         stateMap.saveIsEdit ?

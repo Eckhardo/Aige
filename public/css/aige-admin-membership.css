@@ -143,12 +143,12 @@ ul label{
 .tblList tbody tr{
     border:solid 1px;
     height:30px;
-      background: #cad2ce;
+      background: #d7e3ef;
 }
 .tblList tbody tr:nth-child(2n){
     border:solid 1px;
     height:30px;
-      background: #d7e3ef;
+      background:#cad2ce ;
 }
 .tblList tbody tr td{
     border:solid 1px;

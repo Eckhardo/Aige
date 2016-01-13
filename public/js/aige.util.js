@@ -25,7 +25,7 @@ aige.util = (function () {
             stateMap = {$container: null},
     jqueryMap = {}, getFormData,
             containsItem, getDatepickerOptions, messageConfirm, messageError,
-            fetchFormKeys, fetchFormKeyValues, fetchKeys,updatePopup,
+            fetchFormKeys, fetchFormKeyValues, fetchKeys, updatePopup, objectFieldsNotEmpty,
             setConfigMap, setJqueryMap, initModule;
     //--------------------- BEGIN DOM METHODS --------------------
     // Begin DOM method /setJqueryMap/
@@ -110,8 +110,7 @@ aige.util = (function () {
         var keys;
         if (obj.keys) {
             keys = obj.keys();
-        }
-        else {
+        } else {
             keys = [];
             for (var k in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, k)) {
@@ -146,6 +145,34 @@ aige.util = (function () {
         return result;
     }
 
+    /**
+     * Checks properties of given object which are all of type=array for content (size>0);
+     * @param {type} deltas - an object with field of type array
+     * @returns {Boolean}
+     */
+    objectFieldsNotEmpty = function (deltas) {
+        var is_not_empty=false;
+        console.log("HINEIN");
+        var key_name, array_field;
+        for (key_name in deltas) {
+            if (deltas.hasOwnProperty(key_name)) {
+                array_field = deltas[key_name];
+                if (array_field && array_field.length > 0) {
+                    console.log("name of key: " + JSON.stringify(key_name));
+                    console.log("values : " + JSON.stringify(array_field));
+                   is_not_empty= true;
+                }
+                else{
+               //    delete deltas[key_name];
+                }
+            }
+
+
+        }
+          console.log("HINAUS: " + JSON.stringify(deltas));
+        return is_not_empty;
+    }
+
     // Begin Public method /setConfigMap/
     // Purpose: Common code to set configs in feature modules
     // Arguments:
@@ -167,8 +194,7 @@ aige.util = (function () {
 
 
                     config_map[key_name] = input_map[key_name];
-                }
-                else {
+                } else {
                     error = makeError('Bad Input',
                             'Setting config key |' + key_name + '| is not supported'
                             );
@@ -177,7 +203,7 @@ aige.util = (function () {
             }
         }
     };
-     updatePopup= function($popup) {
+    updatePopup = function ($popup) {
         var $popupContent = $popup,
                 // http://api.jquery.com/height/
                 // http://api.jquery.com/outerheight/
@@ -206,8 +232,8 @@ aige.util = (function () {
     };
     // End public method /initModule/
     return {
-        updatePopup:updatePopup,
-        getFormData:getFormData,
+        updatePopup: updatePopup,
+        getFormData: getFormData,
         getDatepickerOptions: getDatepickerOptions,
         containsItem: containsItem,
         messageConfirm: messageConfirm,
@@ -215,6 +241,7 @@ aige.util = (function () {
         fetchKeys: fetchKeys,
         fetchFormKeyValues: fetchFormKeyValues,
         fetchFormKeys: fetchFormKeys,
+        objectFieldsNotEmpty: objectFieldsNotEmpty,
         setConfigMap: setConfigMap,
         initModule: initModule
     };

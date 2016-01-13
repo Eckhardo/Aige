@@ -17,12 +17,15 @@ aige.data = (function () {
     ajax_call = (function () {
         var find_all,
                 search,
-                search_by_in_clause,
                 deactivate_item,
                 delete_item,
                 create_item,
                 update_item,
-                update_events;
+                update_saison_events_for_member,
+                add_members_to_saison,
+                delete_members_from_saison,
+                add_events_to_saison,
+                delete_events_from_saison;
 
         find_all = function (object_type) {
             var promise = $.Deferred();
@@ -52,14 +55,14 @@ aige.data = (function () {
                 data: JSON.stringify({search: searchParams}),
                 dataType: 'json',
                 contentType: 'application/json',
-                error: function () {
-                    var error = 'invalid update';
+                error: function (result) {
+                   console.log("DATA: search reject =" + JSON.stringify(result));
                     promise.reject(error);
                 }
             });
             return promise;
         };
-   
+
         /**
          * 
          * @param {type} object_type
@@ -140,10 +143,10 @@ aige.data = (function () {
             });
             return promise;
         };
-        update_events = function (object_type, id, name, setMap) {
-            console.log("update_events," + JSON.stringify(setMap));
+        update_saison_events_for_member = function (object_type, id, name, setMap) {
+             console.log("update_events," + JSON.stringify(setMap));
             var promise = $.Deferred();
-            $.ajax('/' + object_type + '/updateEvents', {
+            $.ajax('/' + object_type + '/updateSaisonEventsForMember', {
                 type: 'POST',
                 success: function (result) {
                     promise.resolve(result);
@@ -153,12 +156,92 @@ aige.data = (function () {
                 dataType: 'json',
                 contentType: 'application/json',
                 error: function (result) {
-                    console.log("update reject =" + JSON.stringify(result));
+                         console.log("update reject =" + JSON.stringify(result));
                     promise.reject(result);
                 }
             });
             return promise;
         };
+        add_members_to_saison = function (object_type, id, members, memberEvents) {
+             console.log("add_members_to_saison," + JSON.stringify(members));
+            var promise = $.Deferred();
+            $.ajax('/' + object_type + '/addMembersToSaison', {
+                type: 'POST',
+                success: function (result) {
+                    promise.resolve(result);
+                },
+                data: JSON.stringify({id: id, members: members, memberEvents: memberEvents}),
+                timeout: 10000,
+                dataType: 'json',
+                contentType: 'application/json',
+                error: function (result) {
+                            console.log("add members reject =" + JSON.stringify(result));
+                    promise.reject(result);
+                }
+            });
+            return promise;
+        };
+
+        delete_members_from_saison = function (object_type, id, members) {
+            console.log("DATA: delete_members_from_saison," + JSON.stringify(members));
+            var promise = $.Deferred();
+            $.ajax('/' + object_type + '/deleteMembersFromSaison', {
+                type: 'POST',
+                success: function (result) {
+                    promise.resolve(result);
+                },
+                data: JSON.stringify({id: id, members: members}),
+                timeout: 10000,
+                dataType: 'json',
+                contentType: 'application/json',
+                error: function (result) {
+                    console.log("DATA: delete members reject =" + JSON.stringify(result));
+                    promise.reject(result);
+                }
+            });
+            return promise;
+        };
+
+        add_events_to_saison = function (object_type, id, events, memberEvents) {
+     console.log("add_events_to_saison," + JSON.stringify(events));
+            var promise = $.Deferred();
+            $.ajax('/' + object_type + '/addEventsToSaison', {
+                type: 'POST',
+                success: function (result) {
+                    promise.resolve(result);
+                },
+                data: JSON.stringify({id: id, events: events, memberEvents: memberEvents}),
+                timeout: 10000,
+                dataType: 'json',
+                contentType: 'application/json',
+                error: function (result) {
+                   console.log("update reject =" + JSON.stringify(result));
+                    promise.reject(result);
+                }
+            });
+            return promise;
+        };
+
+        delete_events_from_saison = function (object_type, id, events, members) {
+            console.log("deleteEventsFromSaison," + JSON.stringify(events));
+            var promise = $.Deferred();
+            $.ajax('/' + object_type + '/deleteEventsFromSaison', {
+                type: 'POST',
+                success: function (result) {
+                    promise.resolve(result);
+                },
+                data: JSON.stringify({id: id, members: members, events: events}),
+                timeout: 10000,
+                dataType: 'json',
+                contentType: 'application/json',
+                error: function (result) {
+                     console.log("DATA: deleteEventsFromSaison reject =" + JSON.stringify(result));
+                    promise.reject(result);
+                }
+            });
+            return promise;
+        };
+
 
 
         return {
@@ -168,7 +251,13 @@ aige.data = (function () {
             deleteItem: delete_item,
             deactivateItem: deactivate_item,
             updateItem: update_item,
-            updateEvents: update_events};
+            updateSaisonEventsForMember: update_saison_events_for_member,
+            addMembersToSaison: add_members_to_saison,
+            deleteMembersFromSaison: delete_members_from_saison,
+            addEventsToSaison: add_events_to_saison,
+            deleteEventsFromSaison: delete_events_from_saison
+
+        };
     }());
 
 //    

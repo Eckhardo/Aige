@@ -48,7 +48,7 @@ aige.shell = (function () {
                         + '</li>'
                         + '<li class="has-sub"><a href="#"><span>Dienste</span></a>'
                         + '<ul >'
-                        + '<li><a href="#"><span id="saisonevents">Arbeitsdienste</span></a></li>'
+                        + '<li><a href="#"><span id="image_upload">Bilder Hochladen</span></a></li>'
                         + '<li><a href="#"><span id="workservice">Arbeitsdienste</span></a></li>'
                         + '<li class="last"><a href="#"><span id="fishing">Angeltermine</span></a></li>'
                         + '</ul>'
@@ -367,6 +367,12 @@ aige.shell = (function () {
         aige.saison.initModule(jqueryMap.$container);
         // configure and initialize utility module 
         aige.util.initModule(jqueryMap.$container);
+        
+        aige.images.configModule({
+            general_model: aige.model.general,
+            actionTypes: configMap.actionTypes
+        });
+        aige.images.initModule(jqueryMap.$container);
         // Handle URI anchor change events.
         // This is done /after/ all feature modules are configured
         // and initialized, otherwise they will not be ready to handle

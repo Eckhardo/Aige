@@ -1,0 +1,44 @@
+##########################################
+     MEMBER
+##########################################
+ db.saison.update({"name": "Saison 2015", "myMembers.memberName":"Chrischi"}, {$set:{"myMembers.$.myEvents":[]}});
+1.) add name to members array:
+db.saison.update({"year": "2016"}, {$push:{"members":'Kalle'}});
+
+2.) Delete name from members array:
+db.saison.update({"year": "2016"}, {$pull:{"members":'Kalle'}});
+
+3.) Delete name and all saison event entries  from memberEvents array:
+db.saison.update({"year": "2016"}, {$pull:{ "memberEvents":{memberName:'Holle'}}},false,true);
+
+4.) OK ! DELETE MEMBER COMPLETELY: Delete name from members array and also delete name and all saison event entries from memberEvents array:
+db.saison.update({"year": "2016"}, {$pull:{ "memberEvents":{memberName:'Guenni'},"members":'Guenni' }},false,true);
+db.saison.update({"year": "2016"}, {$pull:{ "memberEvents":{memberName:{ $in:['Ecki','Frankie', 'Guenni']}},"members":{ $in:['Ecki','Frankie', 'Guenni']} }},false,true);
+
+##########################################
+         SAISON EVENT
+##########################################
+
+
+1.) add EVENT to events array:
+db.saison.update({"year": "2016"}, {$push:{"events":'Arbeitsdienst-4'}});
+
+2.) Delete EVENT from events array:
+db.saison.update({"year": "2016"}, {$pull:{"events":'Arbeitsdienst-4'}});
+3.) Delete a given saison event entry for a given member  from memberEvents array:
+db.saison.update({"year": "2016","memberEvents.memberName": 'Guenni'}, {$pull:{ "memberEvents.$.saisonEvents":{"eventName":'Arbeitsdienst 2'}, "events":'Arbeitsdienst 1' }},false,true);
+
+
+db.saison.update({"year": "2016","memberEvents.memberName":{ $in:['Ecki','Frankie', 'Torsten']}}, {$pull:{ "memberEvents.$.saisonEvents":{"eventName":'Wildschweinessen'} }}, {multi:true});
+db.saison.update({"year": "2016"}, {$pull:{ "memberEvents.$.saisonEvents":{"eventName":'Wildschweinessen'} }},false,true);
+
+
+3.) Delete saison event entry from all members  from memberEvents array:
+db.saison.update({"year": "2016"}, {$pull:{ memberEvents:{saisonEvents: {$elemMatch:{"eventName":"Wildschweinessen"}}}}}, {multi:true});
+
+3.) Delete saison event entry from all members  from memberEvents array:
+db.saison.update({"year": "2016"}, {$pull:{ memberEvents:{ "saisonEvents":{"eventName":"Wildschweinessen"}}}},false,true);
+
+
+db.saison.update({"year": "2016"}, {$pull:{ "memberEvents.saisonEvents":{"eventName":'Wildschweinessen'} }}, {multi:true});
+db.saison.update({"year": "2016","memberEvents.memberName":{ $in:['Ecki','Frankie', 'Torsten']}}, {$pull:{ "memberEvents.saisonEvents":{"eventName":'Wildschweinessen'} }}, false,true);
