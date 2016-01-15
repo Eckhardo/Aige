@@ -85,16 +85,7 @@ aige.member = (function () {
                 + '</div>'
                 + '</form>'
                 + '</div>',
-        member_popup_form_html: String()
-                + '<div id="popup-content">'
-                + '<h2>Compelling Popup Overlay Title</h2>'
-                + '<div>'
-                + '<p>Example of a popup overlay with a initial timer.</p>'
-                + '</div>'
-                + '<div>'
-                + '<input id="buttonCloseMember" type="button" value="Close Popup" />'
-                + '</div>'
-                + '</div>',
+       
         imageActive: "<img src='../css/images/boxSelected.gif' alt='Aktiv'/>",
         imageInactive: "<img src='../css/images/boxUnselected.gif' alt='Aktiv'/>",
         settable_map: {
@@ -236,7 +227,7 @@ aige.member = (function () {
                 }
             });
         }
-        jqueryMap.$adminMemberList.show();
+        jqueryMap.$adminMemberList.fadeIn(1000,"swing");
     };
 //---------------------- END DOM METHODS ---------------------
 

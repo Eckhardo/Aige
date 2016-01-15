@@ -21,7 +21,8 @@ var aige = (function () {
                     member: "member",
                     event: "event",
                     membership: "membership",
-                    saison: "saison"}
+                    saison: "saison",
+                    message: "message"}
             }
     var initModule = function ($container) {
 

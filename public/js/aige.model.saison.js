@@ -27,8 +27,8 @@ aige.model.saison = (function () {
     stateMap = {
         ajaxCall: null
     },
-    initModule, configModule, make_saison, create_saison, update_saison_events_for_member, update_saison_events,
-            update_saison_members, get_saison_events_by_name;
+    initModule, configModule, make_saison, create_saison, update_saison_events_for_member, add_saison__members_and_events,
+            delete_saison__members_and_events, get_saison_events_by_name;
 
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -46,8 +46,15 @@ aige.model.saison = (function () {
 
         return _member_events;
     }
-    ;
 
+    function make_saison_events(events) {
+        var saison_events = [], _saisonEvent;
+        for (var i = 0; i < events.length; i++) {
+            _saisonEvent = {eventName: events[i], confirmed: false, tookPart: false};
+            saison_events.push(_saisonEvent)
+        }
+        return saison_events;
+    }
 
     function checkForModifications(membership, saison) {
         var deltas = {addedMembers: [], deletedMembers: [], addedEvents: [],
@@ -217,8 +224,8 @@ aige.model.saison = (function () {
      * @param {type} callback
      * @returns {undefined}
      */
-    update_saison_events = function (searchParams, callback) {
-        var _membership, search_membership, _saison,  add_events, delete_events, search_saison;
+    add_saison__members_and_events = function (searchParams, callback) {
+        var _membership, search_membership, _saison, add_events, add_members, search_saison;
         search_membership = stateMap.ajaxCall.search(configMap.objectTypes.membership, searchParams);
         search_membership.done(function (membership_list) {
             // 1. fetch fresh membership
@@ -232,82 +239,17 @@ aige.model.saison = (function () {
 
             var events = _membership.events;
             var members = _membership.members;
-       
-            var eventSaisonEvents = [];
-
-            if (aige.util.objectFieldsNotEmpty(deltas)) {
-                console.log("NOW:  delete members: " + JSON.stringify(deltas.deletedMembers));
-                delete_events = stateMap.ajaxCall.deleteEventsFromSaison(configMap.objectTypes.saison, _saison._id, deltas.deletedEvents, members);
-                delete_events.done(function (count_deletes) {
-                    console.log("# deleted events: " + JSON.stringify(count_deletes));
 
 
-                    console.log("WAIT  search the saison: ");
-                    search_saison = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
-                    console.log("NOW:  search the saison: ");
-                    search_saison.done(function (item_list) {
-                        aige.model.clearStateMaps(configMap.objectTypes.saison);
-                        aige.model.fillStateMaps(configMap.objectTypes.saison, item_list);
-                        callback(null);
-                    }).fail(function (error) {
-                        setTimeout(function () {
-                            console.log("callback error 1: " + JSON.stringify(error));
-                            callback(error);
-                        }, 3000);
-                    });
-
-
-                }).fail(function (error) {
-                    setTimeout(function () {
-                        console.log("callback error 2: " + JSON.stringify(error));
-                        callback(error);
-                    }, 3000);
-                });
-
-
-
-            } else {
-                // nothing to be updated
-                callback(null);
-            }
-        }).fail(function (error) {
-            setTimeout(function () {
-                console.log("callback error 3: " + JSON.stringify(error));
-                callback(error);
-            }, 3000);
-        });
-    };
-
-
-    /**
-     * 
-     * @param {type} searchParams
-     * @param {type} callback
-     * @returns {undefined}
-     */
-    update_saison_members = function (searchParams, callback) {
-        var _membership, search_membership, _saison, add_members, delete_members, search_saison;
-        search_membership = stateMap.ajaxCall.search(configMap.objectTypes.membership, searchParams);
-        search_membership.done(function (membership_list) {
-            // 1. fetch fresh membership
-            aige.model.clearStateMaps(configMap.objectTypes.membership);
-            aige.model.fillStateMaps(configMap.objectTypes.membership, membership_list);
-            _membership = aige.model.general.getCurrentItem(configMap.objectTypes.membership);
-            _saison = aige.model.general.getCurrentItem(configMap.objectTypes.saison);
-            // 2. look for meber/event candidates to be added/deleted
-            var deltas = checkForModifications(_membership, _saison);
-            console.log("deltas=" + JSON.stringify(deltas));
-
-            var events = _membership.events;
-         
             var memberSaisonEvents = [];
-           
 
+            var saisonEvents = make_saison_events(deltas.addedEvents);
+            console.log("add saison events: " + JSON.stringify(saisonEvents));
             if (aige.util.objectFieldsNotEmpty(deltas)) {
-                console.log("NOW:  delete members: " + JSON.stringify(deltas.deletedMembers));
-                delete_members = stateMap.ajaxCall.deleteMembersFromSaison(configMap.objectTypes.saison, _saison._id, deltas.deletedMembers);
-                delete_members.done(function (count_deletes) {
-                    console.log("# deleted members: " + JSON.stringify(count_deletes));
+                console.log("NOW:  add events: " + JSON.stringify(deltas.addedEvents));
+                add_events = stateMap.ajaxCall.addEventsToSaison(configMap.objectTypes.saison, _saison._id, deltas.addedEvents, saisonEvents, members);
+                add_events.done(function (count_adds) {
+                    console.log("# added events: " + JSON.stringify(count_adds));
                     console.log("NOW:  add members: " + JSON.stringify(deltas.addedMembers));
                     memberSaisonEvents = make_member_events(deltas.addedMembers, events);
                     console.log("# member events: " + JSON.stringify(memberSaisonEvents));
@@ -333,6 +275,81 @@ aige.model.saison = (function () {
                         }, 3000);
                     });
 
+
+                }).fail(function (error) {
+                    setTimeout(function () {
+                        console.log("callback error 1: " + JSON.stringify(error));
+                        callback(error);
+                    }, 3000);
+                });
+
+
+
+
+            } else {
+                // nothing to be updated
+                callback(null);
+            }
+        }).fail(function (error) {
+            setTimeout(function () {
+                console.log("callback error 3: " + JSON.stringify(error));
+                callback(error);
+            }, 3000);
+        });
+    };
+
+
+    /**
+     * 
+     * @param {type} searchParams
+     * @param {type} callback
+     * @returns {undefined}
+     */
+    delete_saison__members_and_events = function (searchParams, callback) {
+        var _membership, search_membership, _saison, delete_events, delete_members, search_saison;
+        search_membership = stateMap.ajaxCall.search(configMap.objectTypes.membership, searchParams);
+        search_membership.done(function (membership_list) {
+            // 1. fetch fresh membership
+            aige.model.clearStateMaps(configMap.objectTypes.membership);
+            aige.model.fillStateMaps(configMap.objectTypes.membership, membership_list);
+            _membership = aige.model.general.getCurrentItem(configMap.objectTypes.membership);
+            _saison = aige.model.general.getCurrentItem(configMap.objectTypes.saison);
+            // 2. look for meber/event candidates to be added/deleted
+            var deltas = checkForModifications(_membership, _saison);
+            console.log("deltas=" + JSON.stringify(deltas));
+            var members = _membership.members;
+            var events = _membership.events;
+            var memberSaisonEvents = [];
+
+
+            if (aige.util.objectFieldsNotEmpty(deltas)) {
+                console.log("NOW:  delete members: " + JSON.stringify(deltas.deletedMembers));
+                delete_members = stateMap.ajaxCall.deleteMembersFromSaison(configMap.objectTypes.saison, _saison._id, deltas.deletedMembers);
+                delete_members.done(function (count_deletes) {
+                    console.log("# deleted members: " + JSON.stringify(count_deletes));
+
+                    console.log("NOW:  delete events: " + JSON.stringify(deltas.deletedEvents));
+                    delete_events = stateMap.ajaxCall.deleteEventsFromSaison(configMap.objectTypes.saison, _saison._id, deltas.deletedEvents, members);
+                    delete_events.done(function (count_deletes) {
+                        console.log("# deleted events: " + JSON.stringify(count_deletes));
+                        search_saison = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
+                        search_saison.done(function (item_list) {
+                            console.log("# searched done: " + JSON.stringify(item_list));
+                            aige.model.clearStateMaps(configMap.objectTypes.saison);
+                            aige.model.fillStateMaps(configMap.objectTypes.saison, item_list);
+                            callback(null);
+                        }).fail(function (error) {
+                            setTimeout(function () {
+                                callback(error);
+                            }, 3000);
+                        });
+
+                    }).fail(function (error) {
+                        setTimeout(function () {
+                            console.log("callback error 2: " + JSON.stringify(error));
+                            callback(error);
+                        }, 3000);
+                    });
 
 
                 }).fail(function (error) {
@@ -368,14 +385,14 @@ aige.model.saison = (function () {
      * @param {type} callback - a callback thhat handles errors and delegates to the view.
      * @returns {undefined}
      */
-    update_saison_events_for_member = function (saisonId, memberName, checkedFormParamEventKeys, eventKeyValues, callback) {
+    update_saison_events_for_member = function (saisonId, year, memberName, checkedFormParamEventKeys, eventKeyValues, callback) {
 
         //    console.log("checkedFormParamEventKeys=" + JSON.stringify(checkedFormParamEventKeys));
         //    console.log("eventKeyValues=" + JSON.stringify(eventKeyValues));
 
-
+        console.log("year=" + JSON.stringify(year));
         var saisonEvents = extractSaisonEvents(checkedFormParamEventKeys, eventKeyValues);
-        var searchParams = {searchParams: {isActive: true}};
+        var searchParams = {searchParams: {year: year}};
         var update, search;
 
         update = stateMap.ajaxCall.updateSaisonEventsForMember(configMap.objectTypes.saison, saisonId, memberName, saisonEvents);
@@ -383,6 +400,7 @@ aige.model.saison = (function () {
         update.done(function (count_updates) {
             search = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
             search.done(function (item_list) {
+                console.log("saions=" + JSON.stringify(item_list));
                 aige.model.fillStateMaps(configMap.objectTypes.saison, item_list);
                 callback(null);
             }).fail(function (error) {
@@ -462,8 +480,8 @@ aige.model.saison = (function () {
         configModule: configModule,
         initModule: initModule,
         createSaison: create_saison,
-        updateSaisonEvents: update_saison_events,
-        updateSaisonMembers: update_saison_members,
+        addSaisonEventsAndMembers: add_saison__members_and_events,
+        deleteSaisonEventsAndMembers: delete_saison__members_and_events,
         updateSaisonEventsForMember: update_saison_events_for_member,
         getSaisonEventsByName: get_saison_events_by_name
     };

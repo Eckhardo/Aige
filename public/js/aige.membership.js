@@ -104,7 +104,7 @@ aige.membership = (function () {
         pickedEvents: []
     },
     jqueryMap = {}, listSelectedMembership, onMenuMembership, onEditMembership, onDeleteMembership, onCreateMembership, onSaveMembership,
-            onEventPicklistChange, onMemberPicklistChange, onLoginSuccess,  membershipCallback, setJqueryMap, configModule, initModule;
+            onEventPicklistChange, onMemberPicklistChange, onLoginSuccess, membershipCallback, setJqueryMap, configModule, initModule;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //------------------- BEGIN UTILITY METHODS ------------------
@@ -257,7 +257,7 @@ aige.membership = (function () {
         } else {
             jqueryMap.$adminMembershipList.find('#buttonCreateMembership').show();
         }
-        jqueryMap.$adminMembershipList.fadeIn();
+        jqueryMap.$adminMembershipList.fadeIn(1000,"swing");
     };
 //---------------------- END DOM METHODS ---------------------
 
@@ -270,8 +270,11 @@ aige.membership = (function () {
      */
     onMenuMembership = function (event) {
         var searchParams;
+        stateMap.currentMembership = null;
+        stateMap.pickedEvents = null;
+        stateMap.pickedMembers = null;
         stateMap.currentYear = new Date().getFullYear().toString();
-        stateMap.selectedYear=stateMap.currentYear;
+        stateMap.selectedYear = stateMap.currentYear;
         stateMap.currentAction = configMap.actionTypes.list;
         jqueryMap.$contentWrapper.children().hide();
         jqueryMap.$membershipGroup.fadeIn();
@@ -289,6 +292,10 @@ aige.membership = (function () {
      * @returns {false}
      */
     onChangeMembershipGroupEvent = function (event) {
+
+        stateMap.currentMembership = null;
+        stateMap.pickedEvents = null;
+        stateMap.pickedMembers = null;
         stateMap.currentAction = configMap.actionTypes.list;
         stateMap.selectedYear = jqueryMap.$membershipGroup.find('#txtMembershipGroupYear').val();
         console.log("selected year= " + JSON.stringify(stateMap.selectedYear));
@@ -303,7 +310,7 @@ aige.membership = (function () {
      * @returns {Boolean}
      */
     onDeleteMembership = function (event) {
-        
+
         if (stateMap.currentMember.isAdmin && stateMap.selectedYear >= stateMap.currentYear) {
             stateMap.currentAction = configMap.actionTypes.delete;
             event.preventDefault();
@@ -326,9 +333,12 @@ aige.membership = (function () {
      * @returns {Boolean}
      */
     onEditMembership = function (event) {
+        var inactiveMembers, inactiveEvents,
+                searchParams = {searchParams: {year: stateMap.selectedYear}};
+
         if (stateMap.currentMember.isAdmin && stateMap.selectedYear >= stateMap.currentYear) {
-            var inactiveMembers, inactiveEvents,
-                    searchParams = {searchParams: {year: stateMap.selectedYear}};
+            console.log(" ms: " + JSON.stringify(stateMap.currentMembership));
+            console.log("year: " + JSON.stringify(stateMap.selectedYear));
 
             stateMap.currentAction = configMap.actionTypes.update;
             stateMap.saveIsEdit = true;
@@ -348,6 +358,7 @@ aige.membership = (function () {
                 }
                 inactiveMembers = configMap.membership_model.getUnregisteredMembers();
                 inactiveEvents = configMap.membership_model.getUnregisteredEvents();
+
 
                 setTimeout(function () {
                     addItemsToPicklist(jqueryMap.$memberPicklist, stateMap.currentMembership.members, true);
@@ -374,7 +385,7 @@ aige.membership = (function () {
      */
     onCreateMembership = function () {
 
-   
+
         var inactiveMembers, inactiveEvents;
         if (stateMap.currentMember.isAdmin && stateMap.selectedYear >= stateMap.currentYear) {
             stateMap.currentAction = configMap.actionTypes.create;
@@ -388,21 +399,28 @@ aige.membership = (function () {
             configMap.membership_model.findInactiveItems([], [], {searchParams: {year: stateMap.selectedYear}}, function (error) {
                 if (error) {
                     $message = $("<span>Das Fuellen der Picklist ist nicht erfolgreich</span>");
+                    aige.util.messageConfirm($message);
                     return false;
                 }
                 inactiveMembers = configMap.membership_model.getUnregisteredMembers();
                 inactiveEvents = configMap.membership_model.getUnregisteredEvents();
+                if (!inactiveEvents || inactiveEvents.length < 1) {
+                    $message = $("<span>Bitte erst Ereignisse anlegen bzw. diese aktivieren.</span>");
+                    aige.util.messageConfirm($message);
+                    return false;
+                } else {
+                    updatePopup();
+                    jqueryMap.$membershipFormPopup.fadeIn();
+                    jqueryMap.$overlay.fadeIn();
+                    jqueryMap.$membershipForm.find("#txtMembershipYear").val(stateMap.selectedYear);
+                    jqueryMap.$membershipFormPopup.find("#txtMembershipName").focus();
+                    setTimeout(function () {
+                        addItemsToPicklist(jqueryMap.$memberPicklist, inactiveMembers, false);
+                        addItemsToPicklist(jqueryMap.$eventPicklist, inactiveEvents, false);
+                    }, 1000);
+                }
 
-                setTimeout(function () {
-                    addItemsToPicklist(jqueryMap.$memberPicklist, inactiveMembers, false);
-                    addItemsToPicklist(jqueryMap.$eventPicklist, inactiveEvents, false);
-                }, 1000);
             });
-            updatePopup();
-            jqueryMap.$membershipFormPopup.fadeIn();
-            jqueryMap.$overlay.fadeIn();
-            jqueryMap.$membershipForm.find("#txtMembershipYear").val(stateMap.selectedYear);
-            jqueryMap.$membershipFormPopup.find("#txtMembershipName").focus();
         } else {
             var $message = $("<span> Du hast keine Berechtigung oder das Jahr der Mitgliedschaft liegt in der Vergangenheit </span>")
             aige.util.messageConfirm($message);
@@ -459,7 +477,7 @@ aige.membership = (function () {
         return false;
 
     }
-   
+
     //-------------------- END EVENT HANDLERS --------------------
     //-------------------- START CALLBACKS  -------------------- 
 
@@ -535,7 +553,7 @@ aige.membership = (function () {
         jqueryMap.$memberPicklist.bind("picklist_onchange", onMemberPicklistChange);
         jqueryMap.$eventPicklist.bind("picklist_onchange", onEventPicklistChange);
         $.gevent.subscribe(jqueryMap.$contentWrapper, 'login-success', onLoginSuccess);
-       
+
         $(window).resize(updatePopup());
 
 

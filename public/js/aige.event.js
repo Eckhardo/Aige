@@ -213,7 +213,7 @@ aige.event = (function () {
         }
 
 
-        jqueryMap.$eventList.fadeIn();
+        jqueryMap.$eventList.fadeIn(1000,"swing");
     };
 //---------------------- END DOM METHODS ---------------------
 

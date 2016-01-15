@@ -202,7 +202,7 @@ aige.data = (function () {
             return promise;
         };
 
-        add_events_to_saison = function (object_type, id, events, memberEvents) {
+        add_events_to_saison = function (object_type, id, events, saisonEvents, members) {
      console.log("add_events_to_saison," + JSON.stringify(events));
             var promise = $.Deferred();
             $.ajax('/' + object_type + '/addEventsToSaison', {
@@ -210,7 +210,7 @@ aige.data = (function () {
                 success: function (result) {
                     promise.resolve(result);
                 },
-                data: JSON.stringify({id: id, events: events, memberEvents: memberEvents}),
+                data: JSON.stringify({id: id, events: events, saisonEvents: saisonEvents, members:members}),
                 timeout: 10000,
                 dataType: 'json',
                 contentType: 'application/json',

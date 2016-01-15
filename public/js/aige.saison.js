@@ -36,14 +36,11 @@ aige.saison = (function () {
                         + '</div>'
                         + '<div id="buttonCreateSaison" class="buttonCreate"> Neue Saison anlegen</div>'
                         + '<div id="buttonDeleteSaison" class="buttonCreate"> Saison loeschen</div>'
-                        + '<div id="buttonUpdateSaisonEvents" class="buttonCreate"> Ereignisse aktualisieren</div>'
-                        + '<div id="buttonUpdateSaisonMembers" class="buttonCreate"> Mitglieder aktualisieren</div>'
+                        + '<div id="buttonUpdateSaisonMembers" class="buttonCreate"> Saisondaten aktualisieren</div>'
                         + '<h3 id="headerSaison" style="text-align:center;"></h3>'
-
                         + '<table id="tblCurrentSaison" class="tblList">'
                         + '<thead></thead><tbody></tbody>'
                         + '</table>'
-
                         + '</div>',
                 saison_form_html: String()
                         + '<div id="saisonEdit" class="aige-admin-member-add-edit">'
@@ -85,7 +82,7 @@ aige.saison = (function () {
         inputFieldHtmlMap: null
 
     },
-    jqueryMap = {}, listSaison, onMenuSaison, onEditSaisonForMember, onDeleteSaison, onUpdateSaisonEvents, onUpdateSaisonMembers, onCreateSaison, onSaveSaisonForMember,
+    jqueryMap = {}, listSaison, onMenuSaison, onEditSaisonForMember, onDeleteSaison, onAddDeleteSaisonMembersAndEvents, onCreateSaison, onSaveSaisonForMember,
             saisonCallback, setJqueryMap, configModule, initModule, onLoginSuccess;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -168,10 +165,10 @@ aige.saison = (function () {
      * @returns {undefined}
      */
     function assignValuesToCheckboxes(checkboxNameValuePairMap) {
-        var i = 0, checkboxNameValuePair, checkboxName, $jquerySelector = jqueryMap.$saisonEditFormPopup;
+        var checkboxNameValuePair, checkboxName, $jquerySelector = jqueryMap.$saisonEditFormPopup;
         jqueryMap.$saisonForm.find("ul").append(stateMap.inputFieldHtmlMap);
         $jquerySelector.find("#txtSaisonName").val(stateMap.currentSaisonMemberName);
-        for (i = 0; i < checkboxNameValuePairMap.length; i++) {
+        for (var i = 0; i < checkboxNameValuePairMap.length; i++) {
             checkboxNameValuePair = checkboxNameValuePairMap [i];
             for (checkboxName in checkboxNameValuePair) {
                 if (checkboxNameValuePair.hasOwnProperty(checkboxName)) {
@@ -193,7 +190,6 @@ aige.saison = (function () {
                 $content = $container.find('.aige-shell-main-content'),
                 $contentWrapper = $container.find("#contentWrapper");
 
-
         $contentWrapper.append($(configMap.saison_html));
         $contentWrapper.append($(configMap.saison_form_html));
 
@@ -211,9 +207,7 @@ aige.saison = (function () {
             $adminCurrentSaisonTableList: $adminCurrentSaison.find('#tblCurrentSaison tbody'),
             $adminCurrentSaisonTableHeader: $adminCurrentSaison.find('#tblCurrentSaison thead'),
             $saisonEditFormPopup: $saisonEditFormPopup,
-            $saisonForm: $contentWrapper.find('#saisonForm')
-
-
+            $saisonForm: $saisonEditFormPopup.find('#saisonForm')
         };
     };
     // End DOM method /setJqueryMap/
@@ -226,10 +220,12 @@ aige.saison = (function () {
     listSaison = function () {
         console.log(" list saison");
         stateMap.currentSaison = configMap.general_model.getCurrentItem(configMap.object_type);
+        console.log("current saison=" + JSON.stringify(stateMap.currentSaison));
         if (stateMap.currentSaison) {
             jqueryMap.$adminCurrentSaison.find('#buttonCreateSaison').hide();
             jqueryMap.$adminCurrentSaison.find('#buttonEditSaison').show();
             jqueryMap.$adminCurrentSaison.find('#buttonDeleteSaison').show();
+            jqueryMap.$adminCurrentSaison.find('#buttonUpdateSaisonMembers').show();
             var events = stateMap.currentSaison.events,
                     memberList = stateMap.currentSaison.memberEvents,
                     membersLength = stateMap.currentSaison.memberEvents.length,
@@ -247,7 +243,7 @@ aige.saison = (function () {
             for (i = 0; i < membersLength; i++) {
                 myMember = memberList[i];
                 memberEvents = myMember.saisonEvents;
-                bodyArray[++j] = " <tr >";
+                bodyArray[++j] = " <tr>";
                 bodyArray[++j] = " <td><img src='../css/images/edit.png' alt='Edit" + myMember.memberName + "'";
                 bodyArray[++j] = " id='btnEditSaison'  class='btnEdit'/></td>";
                 bodyArray[++j] = " <td> <span class='username'>" + myMember.memberName + "</span></td>";
@@ -270,6 +266,7 @@ aige.saison = (function () {
             jqueryMap.$adminCurrentSaison.find('#buttonCreateSaison').show();
             jqueryMap.$adminCurrentSaison.find('#buttonEditSaison').hide();
             jqueryMap.$adminCurrentSaison.find('#buttonDeleteSaison').hide();
+            jqueryMap.$adminCurrentSaison.find('#buttonUpdateSaisonMembers').hide();
             jqueryMap.$contentWrapper.find("#headerSaison").text("Keine Saisondaten vorhanden für   " + stateMap.selectedYear);
         }
         if (!stateMap.currentMember.isAdmin) {
@@ -283,7 +280,7 @@ aige.saison = (function () {
             });
         }
 
-        jqueryMap.$adminCurrentSaison.fadeIn();
+        jqueryMap.$adminCurrentSaison.fadeIn(1000,"swing");
 
 
     };
@@ -318,11 +315,12 @@ aige.saison = (function () {
     onCreateSaison = function (event) {
 
         if (stateMap.currentMember.isAdmin && stateMap.selectedYear >= stateMap.currentYear) {
-
-            configMap.general_model.search("membership", {searchParams: {year: stateMap.currentYear}}, function (error) {
+            console.log(JSON.stringify(stateMap.selectedYear));
+            console.log(JSON.stringify(stateMap.currentYear));
+            configMap.general_model.search("membership", {searchParams: {year: stateMap.selectedYear}}, function (error) {
                 stateMap.currentMembership = configMap.general_model.getCurrentItem("membership");
                 if (error || !stateMap.currentMembership) {
-                    aige.util.messageConfirm($("<span>Bitte zunächst eine Mitgliedschaft anlegen für " + stateMap.currentYear + "</span>"));
+                    aige.util.messageConfirm($("<span>Bitte zunächst eine Mitgliedschaft anlegen für " + stateMap.selectedYear + "</span>"));
                     return false;
                 }
                 configMap.saison_model.createSaison(stateMap.currentMembership, function (error) {
@@ -343,47 +341,41 @@ aige.saison = (function () {
         return false;
     };
 
-    /**
-     * 
-     * @returns {Boolean}
-     */
-    onUpdateSaisonEvents = function () {
-        console.log("on upate saison");
-        if (stateMap.currentMember.isAdmin) {
-            var searchParams = {searchParams: {year: stateMap.selectedYear}};
-
-            stateMap.currentAction = configMap.actionTypes.update;
-            stateMap.saveIsEdit = true;
-
-            configMap.saison_model.updateSaisonEvents(searchParams, saisonCallback);
-        } else {
-            var $message = $("<span> Du hast keine Berechtigung</span>")
-            aige.util.messageConfirm($message);
-        }
-        event.preventDefault();
-        return false;
-    };
 
 
     /**
      * 
      * @returns {Boolean}
      */
-    onUpdateSaisonMembers = function () {
+    onAddDeleteSaisonMembersAndEvents = function () {
         console.log("on upate saison");
-        if (stateMap.currentMember.isAdmin) {
+        if (stateMap.currentMember.isAdmin && stateMap.selectedYear >= stateMap.currentYear) {
             var searchParams = {searchParams: {year: stateMap.selectedYear}};
-
             stateMap.currentAction = configMap.actionTypes.update;
             stateMap.saveIsEdit = true;
 
-            configMap.saison_model.updateSaisonMembers(searchParams, saisonCallback);
+            configMap.saison_model.deleteSaisonEventsAndMembers(searchParams, function (error) {
+                console.log("saisonCallback ..");
+                var $message;
+                if (error) {
+                    $message = $("<span>Das Entfernen war nicht erfolgreich</span>");
+                    aige.util.messageError($message);
+                } else {
+                    $message = $("<span>Einträge wurden entfernt..... Hinzufügen folgt jetzt.</span>");
+                    aige.util.messageConfirm($message);
+                }
+                listSaison();
+                setTimeout(function () {
+                    configMap.saison_model.addSaisonEventsAndMembers(searchParams, saisonCallback);
+                    event.preventDefault();
+                    return false;
+                }, 3000);
+            });
         } else {
             var $message = $("<span> Du hast keine Berechtigung</span>")
             aige.util.messageConfirm($message);
         }
-        event.preventDefault();
-        return false;
+
     };
     /**
      * 
@@ -454,7 +446,7 @@ aige.saison = (function () {
                 clone = (JSON.parse(JSON.stringify(stateMap.checkboxNameValuePairMap))),
                 formKeyValues = aige.util.fetchFormKeyValues($(this));
 
-        configMap.saison_model.updateSaisonEventsForMember(stateMap.currentSaison._id, memberName, formKeyValues, clone, saisonCallback);
+        configMap.saison_model.updateSaisonEventsForMember(stateMap.currentSaison._id, stateMap.currentSaison.year, memberName, formKeyValues, clone, saisonCallback);
 
         jqueryMap.$saisonEditFormPopup.fadeOut();
         jqueryMap.$overlay.fadeOut();
@@ -467,9 +459,15 @@ aige.saison = (function () {
      * @returns {false}
      */
     onChangeSaisonGroupEvent = function (event) {
+     
+        stateMap.currentSaison = null;
+        stateMap.currentSaisonMember = null;
+        stateMap.currentSaisonMemberName = null;
+        stateMap.currentMembership = null;
         stateMap.currentAction = configMap.actionTypes.list;
         stateMap.selectedYear = jqueryMap.$saisonGroup.find('#txtSaisonGroupYear').val();
-        var searchParams = {searchParams: {year: stateMap.selectedYear}};
+   var searchParams = {searchParams: {year: stateMap.selectedYear}};
+
         configMap.general_model.search("membership", searchParams, function (error) {
             if (error) {
                 aige.util.messageError($("<span>Die Suche  war nicht erfolgreich</span>"));
@@ -478,10 +476,11 @@ aige.saison = (function () {
             }
             stateMap.currentMembership = configMap.general_model.getCurrentItem("membership");
             configMap.general_model.search(configMap.object_type, searchParams, saisonCallback);
+            event.preventDefault();
+            return false;
+
         });
 
-        event.preventDefault();
-        return false;
     };
     //-------------------- END EVENT HANDLERS --------------------
     //-------------------- START CALLBACKS  -------------------- 
@@ -499,7 +498,7 @@ aige.saison = (function () {
             } else if (stateMap.currentAction === configMap.actionTypes.delete) {
                 $message = $("<span>Die Transaktion 'Entfernen' war nicht erfolgreich</span>");
             }
-            aige.util.messageError($message);
+   
         } else {
             if (stateMap.currentAction === configMap.actionTypes.list) {
                 $message = $("<span>Das Ergebnis der Saisonsuche:</span>");
@@ -511,8 +510,11 @@ aige.saison = (function () {
                 $message = $("<span> Die Saison wurde deaktiviert.</span>");
             }
 
-            aige.util.messageConfirm($message);
+         
         }
+       error ?
+                aige.util.messageError($message) :
+                aige.util.messageConfirm($message);
 
         listSaison();
     };
@@ -563,8 +565,8 @@ aige.saison = (function () {
         jqueryMap.$adminCurrentSaison.on("click", "#buttonDeleteSaison", onDeleteSaison);
         jqueryMap.$adminCurrentSaison.on("click", "#buttonCreateSaison", onCreateSaison);
         jqueryMap.$adminCurrentSaison.on("click", "#btnEditSaison", onEditSaisonForMember);
-        jqueryMap.$adminCurrentSaison.on("click", "#buttonUpdateSaisonEvents", onUpdateSaisonEvents);
-        jqueryMap.$adminCurrentSaison.on("click", "#buttonUpdateSaisonMembers", onUpdateSaisonMembers);
+
+        jqueryMap.$adminCurrentSaison.on("click", "#buttonUpdateSaisonMembers", onAddDeleteSaisonMembersAndEvents);
         jqueryMap.$saisonForm.on('submit', onSaveSaisonForMember);
         jqueryMap.$saisonForm.on("click", "#buttonCloseSaison", closePopup);
         jqueryMap.$content.on("click", "#overlay-bg", closePopup);

@@ -48,9 +48,10 @@ aige.shell = (function () {
                         + '</li>'
                         + '<li class="has-sub"><a href="#"><span>Dienste</span></a>'
                         + '<ul >'
-                        + '<li><a href="#"><span id="image_upload">Bilder Hochladen</span></a></li>'
-                        + '<li><a href="#"><span id="workservice">Arbeitsdienste</span></a></li>'
-                        + '<li class="last"><a href="#"><span id="fishing">Angeltermine</span></a></li>'
+                        + '<li><a href="#"><span id="image_upload">Bilder hochladen</span></a></li>'
+                        + '<li><a href="#"><span id="image_view">Bilder anschauen</span></a></li>'
+                        + '<li class="last"><a href="#"><span id="protocols">Protokolle</span></a></li>'
+                      + '<li class="last"><a href="#"><span id="treasury">Kassenberichte</span></a></li>'
                         + '</ul>'
                         + '</li>'
                         + '<li class="last"><a href="#"><span id="">Kontakt</span></a></li>'
@@ -72,7 +73,7 @@ aige.shell = (function () {
     jqueryMap = {},
             copyAnchorMap, setJqueryMap,
             changeAnchorPart, onHashchange,
-            onLogin, onLoginFail, onResize, onSignIn, initModule, onMenuHome,
+            onLogin, onLoginFail, onResize, onSignIn, initModule, 
             handleMenu, findMenuAction;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -141,8 +142,7 @@ aige.shell = (function () {
                 key_name_dep = '_' + key_name;
                 if (arg_map[key_name_dep]) {
                     anchor_map_revise[key_name_dep] = arg_map[key_name_dep];
-                }
-                else {
+                } else {
                     delete anchor_map_revise[key_name_dep];
                     delete anchor_map_revise['_s' + key_name_dep];
                 }
@@ -153,8 +153,7 @@ aige.shell = (function () {
         // Begin attempt to update URI; revert if not successful
         try {
             $.uriAnchor.setAnchor(anchor_map_revise);
-        }
-        catch (error) {
+        } catch (error) {
             // replace URI with existing state
             $.uriAnchor.setAnchor(stateMap.anchor_map, null, true);
             bool_return = false;
@@ -168,9 +167,7 @@ aige.shell = (function () {
 
     //------------------- BEGIN EVENT HANDLERS -------------------
 
-    onMenuHome = function (event) {
-        console.log("on menu home");
-    }
+ 
 
     handleMenu = function (event) {
         console.log("handle menu");
@@ -220,8 +217,7 @@ aige.shell = (function () {
         // attempt to parse anchor
         try {
             anchor_map_proposed = $.uriAnchor.makeAnchorMap();
-        }
-        catch (error) {
+        } catch (error) {
             $.uriAnchor.setAnchor(anchor_map_previous, null, true);
             return false;
         }
@@ -254,8 +250,7 @@ aige.shell = (function () {
             if (anchor_map_previous) {
                 $.uriAnchor.setAnchor(anchor_map_previous, null, true);
                 stateMap.anchor_map = anchor_map_previous;
-            }
-            else {
+            } else {
                 delete anchor_map_proposed.chat;
                 $.uriAnchor.setAnchor(anchor_map_proposed, null, true);
             }
@@ -292,8 +287,7 @@ aige.shell = (function () {
             console.log("user name input=" + user_name);
             aige.model.member.login(searchParams);
             jqueryMap.$loginWindow.text('... Anfrage wird bearbeitet ...');
-        }
-        else {
+        } else {
             aige.model.member.logout();
         }
 
@@ -301,11 +295,11 @@ aige.shell = (function () {
     };
     // Will be called when login was successful
     onLogin = function (event, userMap) {
-       
+
         stateMap.currentUser = userMap;
-         console.log("login for " + stateMap.currentUser.username );
+        console.log("login for " + stateMap.currentUser.username);
         $(this).text(userMap.username);
-        
+
         jqueryMap.$menu.fadeIn();
     };
     onLoginFail = function (event, error) {
@@ -335,6 +329,12 @@ aige.shell = (function () {
         $.uriAnchor.configModule({
             schema_map: configMap.anchor_schema_map
         });
+
+        aige.home.configModule({
+            general_model: aige.model.general,
+            actionTypes: configMap.actionTypes
+        });
+        aige.home.initModule(jqueryMap.$container);
         // configure and initialize feature module member
         aige.member.configModule({
             general_model: aige.model.general,
@@ -367,7 +367,7 @@ aige.shell = (function () {
         aige.saison.initModule(jqueryMap.$container);
         // configure and initialize utility module 
         aige.util.initModule(jqueryMap.$container);
-        
+
         aige.images.configModule({
             general_model: aige.model.general,
             actionTypes: configMap.actionTypes
@@ -389,7 +389,7 @@ aige.shell = (function () {
                 .bind('click', onSignIn);
         $('#cssmenu > ul > li >  a ').on('click', handleMenu);
         $('#cssmenu > ul > li.has-sub > ul > li > a').on('click', 'span', findMenuAction);
-        jqueryMap.$menuHome.on("click", onMenuHome);
+  
     };
     // End PUBLIC method /initModule/
 
