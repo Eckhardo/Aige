@@ -169,6 +169,14 @@ ul label{
 .buttonClose{
 
 }
+.smallFont{
+   font-size: 0.9em;  
+  
+}
+
+.smallestFont{
+   font-size: 0.7em;   
+}
 .errormessage{
     color: #f33;
     padding: 0;

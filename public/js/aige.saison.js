@@ -58,12 +58,12 @@ aige.saison = (function () {
                 settable_map: {
                     general_model: true,
                     saison_model: true,
-                    membership_model: true,
+                    event_model: true,
                     actionTypes: true
                 },
                 general_model: null,
                 saison_model: null,
-                membership_model: null,
+                event_model: null,
                 object_type: "saison",
                 actionTypes: null
             },
@@ -75,6 +75,7 @@ aige.saison = (function () {
         currentMembership: null,
         currentSaison: null,
         currentYear: null,
+        currentEvents: [],
         selectedYear: null,
         currentSaisonMember: null,
         currentSaisonMemberName: null,
@@ -230,35 +231,50 @@ aige.saison = (function () {
                     memberList = stateMap.currentSaison.memberEvents,
                     membersLength = stateMap.currentSaison.memberEvents.length,
                     myMember, memberEvents, tblHeaders = "", bodyArray = [], j = -1, i = 0;
-            jqueryMap.$contentWrapper.find("#headerSaison").text("Übersicht der Anmeldungen/Teilnahmen für:  " + stateMap.currentSaison.name);
-            // construct table headers  dynamically (based on # events)
-            jqueryMap.$adminCurrentSaisonTableHeader.html("");
-            tblHeaders = "<tr><th></th><th id= 'tblHeaderName'>Name</th>";
-            for (i = 0; i < events.length; i++) {
-                tblHeaders = tblHeaders + ('<th>' + events[i] + '</th>');
-            }
-            tblHeaders = tblHeaders + "</tr>";
-            jqueryMap.$adminCurrentSaisonTableHeader.append($(tblHeaders));
-            // construct table body
-            for (i = 0; i < membersLength; i++) {
-                myMember = memberList[i];
-                memberEvents = myMember.saisonEvents;
-                bodyArray[++j] = " <tr>";
-                bodyArray[++j] = " <td><img src='../css/images/edit.png' alt='Edit" + myMember.memberName + "'";
-                bodyArray[++j] = " id='btnEditSaison'  class='btnEdit'/></td>";
-                bodyArray[++j] = " <td> <span class='username'>" + myMember.memberName + "</span></td>";
-                for (var k = 0; k < memberEvents.length; k++) {
-                    bodyArray[++j] = "<td><div><span> Angem.:</span>";
-                    bodyArray[++j] = (memberEvents[k].confirmed ? configMap.imageActive : configMap.imageInactive);
-                    bodyArray[++j] = "<span> Teilg.:</span>";
-                    bodyArray[++j] = (memberEvents[k].tookPart ? configMap.imageActive : configMap.imageInactive);
-                    bodyArray[++j] = "</div></td>";
+            var searchParams = {searchParams: {year: stateMap.currentSaison.year}};
+            configMap.event_model.searchByNames(searchParams, events, function (error) {
+                if (error) {
+                    console.log("error");
+                    return false;
                 }
-                bodyArray[++j] = "</tr>";
-            }
-            jqueryMap.$adminCurrentSaisonTableList.html("");
-            jqueryMap.$adminCurrentSaisonTableList.html(bodyArray.join(''));
+                stateMap.currentEvents = configMap.general_model.getItems("event");
+                console.log(" current events: " + JSON.stringify(stateMap.currentEvents));
 
+                jqueryMap.$contentWrapper.find("#headerSaison").text("Übersicht der Anmeldungen/Teilnahmen für:  " + stateMap.currentSaison.name);
+                // construct table headers  dynamically (based on # events)
+                jqueryMap.$adminCurrentSaisonTableHeader.html("");
+                tblHeaders = "<tr><th></th><th id= 'tblHeaderName'>Name</th>";
+                for (i = 0; i < stateMap.currentEvents.length; i++) {
+                    tblHeaders = tblHeaders + ('<th>' + stateMap.currentEvents[i].name + '</th>');
+                }
+                tblHeaders = tblHeaders + "</tr>";
+                jqueryMap.$adminCurrentSaisonTableHeader.append($(tblHeaders));
+                
+                 bodyArray[++j] = " <tr><td></td><td></td>";
+                for (i = 0; i < stateMap.currentEvents.length; i++) {
+                     bodyArray[++j]  ='<td  class="smallFont">' + stateMap.currentEvents[i].startDateTime() + '</td>';
+                }
+                 bodyArray[++j] = " </tr>";
+                // construct table body
+                for (i = 0; i < membersLength; i++) {
+                    myMember = memberList[i];
+                    memberEvents = myMember.saisonEvents;
+                    bodyArray[++j] = " <tr>";
+                    bodyArray[++j] = " <td><img src='../css/images/edit.png' alt='Edit" + myMember.memberName + "'";
+                    bodyArray[++j] = " id='btnEditSaison'  class='btnEdit'/></td>";
+                    bodyArray[++j] = " <td> <span class='username'>" + myMember.memberName + "</span></td>";
+                    for (var k = 0; k < memberEvents.length; k++) {
+                        bodyArray[++j] = "<td><div  class='smallestFont'><span> Angem.:</span>";
+                        bodyArray[++j] = (memberEvents[k].confirmed ? configMap.imageActive : configMap.imageInactive);
+                        bodyArray[++j] = "<span> Teilg.:</span>";
+                        bodyArray[++j] = (memberEvents[k].tookPart ? configMap.imageActive : configMap.imageInactive);
+                        bodyArray[++j] = "</div></td>";
+                    }
+                    bodyArray[++j] = "</tr>";
+                }
+                jqueryMap.$adminCurrentSaisonTableList.html("");
+                jqueryMap.$adminCurrentSaisonTableList.html(bodyArray.join(''));
+            });
         } else {
 
             jqueryMap.$adminCurrentSaisonTableHeader.html("");
@@ -280,7 +296,7 @@ aige.saison = (function () {
             });
         }
 
-        jqueryMap.$adminCurrentSaison.fadeIn(1000,"swing");
+        jqueryMap.$adminCurrentSaison.fadeIn(1000, "swing");
 
 
     };
@@ -459,14 +475,14 @@ aige.saison = (function () {
      * @returns {false}
      */
     onChangeSaisonGroupEvent = function (event) {
-     
+
         stateMap.currentSaison = null;
         stateMap.currentSaisonMember = null;
         stateMap.currentSaisonMemberName = null;
         stateMap.currentMembership = null;
         stateMap.currentAction = configMap.actionTypes.list;
         stateMap.selectedYear = jqueryMap.$saisonGroup.find('#txtSaisonGroupYear').val();
-   var searchParams = {searchParams: {year: stateMap.selectedYear}};
+        var searchParams = {searchParams: {year: stateMap.selectedYear}};
 
         configMap.general_model.search("membership", searchParams, function (error) {
             if (error) {
@@ -498,7 +514,7 @@ aige.saison = (function () {
             } else if (stateMap.currentAction === configMap.actionTypes.delete) {
                 $message = $("<span>Die Transaktion 'Entfernen' war nicht erfolgreich</span>");
             }
-   
+
         } else {
             if (stateMap.currentAction === configMap.actionTypes.list) {
                 $message = $("<span>Das Ergebnis der Saisonsuche:</span>");
@@ -510,9 +526,9 @@ aige.saison = (function () {
                 $message = $("<span> Die Saison wurde deaktiviert.</span>");
             }
 
-         
+
         }
-       error ?
+        error ?
                 aige.util.messageError($message) :
                 aige.util.messageConfirm($message);
 

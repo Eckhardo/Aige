@@ -22,19 +22,30 @@ var aige = (function () {
                     event: "event",
                     membership: "membership",
                     saison: "saison",
-                    message: "message"}
+                    message: "message",
+                    task:"task"}
             }
     var initModule = function ($container) {
 
         aige.data.initModule();
+
         aige.model.configModule(
                 {objectTypes: configMap.objectTypes}
         );
         aige.model.initModule();
+        
+        // saison has an own model ( due to its comlexity);
         aige.model.saison.configModule(
                 {objectTypes: configMap.objectTypes}
         );
         aige.model.saison.initModule();
+ 
+ 
+      // task has an own model ( due to its comlexity);
+        aige.model.task.configModule(
+                {objectTypes: configMap.objectTypes}
+        );
+        aige.model.task.initModule();
         aige.shell.initModule($container);
 
     };

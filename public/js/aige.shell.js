@@ -44,6 +44,7 @@ aige.shell = (function () {
                         + '<li> <a href="#"> <span id="admin_event">Ereignisse</span></a></li>'
                         + '<li> <a href="#"> <span id="admin_membership"> Mitgliedschaft </span></a> </li>'
                         + '<li>  <a href="#"><span id="admin_saison">Termine</span></a></li>'
+                        + '<li>  <a href="#"><span id="admin_tasks">Arbeitsdienste</span></a></li>'
                         + '</ul>'
                         + '</li>'
                         + '<li class="has-sub"><a href="#"><span>Dienste</span></a>'
@@ -51,7 +52,7 @@ aige.shell = (function () {
                         + '<li><a href="#"><span id="image_upload">Bilder hochladen</span></a></li>'
                         + '<li><a href="#"><span id="image_view">Bilder anschauen</span></a></li>'
                         + '<li class="last"><a href="#"><span id="protocols">Protokolle</span></a></li>'
-                      + '<li class="last"><a href="#"><span id="treasury">Kassenberichte</span></a></li>'
+                        + '<li class="last"><a href="#"><span id="treasury">Kassenberichte</span></a></li>'
                         + '</ul>'
                         + '</li>'
                         + '<li class="last"><a href="#"><span id="">Kontakt</span></a></li>'
@@ -73,7 +74,7 @@ aige.shell = (function () {
     jqueryMap = {},
             copyAnchorMap, setJqueryMap,
             changeAnchorPart, onHashchange,
-            onLogin, onLoginFail, onResize, onSignIn, initModule, 
+            onLogin, onLoginFail, onResize, onSignIn, initModule,
             handleMenu, findMenuAction;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -167,7 +168,7 @@ aige.shell = (function () {
 
     //------------------- BEGIN EVENT HANDLERS -------------------
 
- 
+
 
     handleMenu = function (event) {
         console.log("handle menu");
@@ -360,11 +361,18 @@ aige.shell = (function () {
         // configure and initialize feature module saison
         aige.saison.configModule({
             general_model: aige.model.general,
-            membership_model: aige.model.membership,
             saison_model: aige.model.saison,
+            event_model: aige.model.event,
             actionTypes: configMap.actionTypes
         });
         aige.saison.initModule(jqueryMap.$container);
+
+        aige.task.configModule({
+            general_model: aige.model.general,
+            task_model: aige.model.task,
+            actionTypes: configMap.actionTypes
+        });
+        aige.task.initModule(jqueryMap.$container);
         // configure and initialize utility module 
         aige.util.initModule(jqueryMap.$container);
 
@@ -389,7 +397,7 @@ aige.shell = (function () {
                 .bind('click', onSignIn);
         $('#cssmenu > ul > li >  a ').on('click', handleMenu);
         $('#cssmenu > ul > li.has-sub > ul > li > a').on('click', 'span', findMenuAction);
-  
+
     };
     // End PUBLIC method /initModule/
 

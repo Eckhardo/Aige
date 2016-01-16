@@ -1,6 +1,6 @@
 /*
- * aige.user.js
- * Template for browser feature modules
+ * aige.home.js
+ * Home feature modules, including messages.
  *
  
  */
@@ -55,11 +55,11 @@ aige.home = (function () {
                         + '<label for = "txtMessageShort"> Betreff: </label>'
                         + '<input type = "text" id="txtMessageShort" name="messageShort">'
                         + '</li><li>'
-                        + '<label for = "txtMessageDatum"> Datum: </label>'
-                        + '<input type = "text" id = "txtMessageDatum" name="dateTime" readonly="readonly"/>'
+                        + '<label for = "txtMessageDateTime"> Datum: </label>'
+                        + '<input type = "text" id = "txtMessageDateTime" name="dateTime" readonly="readonly"/>'
                         + '</li><li>'
                         + '<label for = "txtMessageLong"> Nachricht: </label>'
-                        + '<textarea id = "txtMessageNachricht" name="news"'
+                        + '<textarea id = "txtMessageLong" name="message"'
                         + 'style=" width: 573px; height: 177px;"></textarea >'
                         + ' </li></ul>'
                         + '<div>'
@@ -81,14 +81,16 @@ aige.home = (function () {
     stateMap = {
         $shellcontainer: null,
         selectedMessageId: -1,
+        messageList: [],
         currentMessage: null,
         currentMember: null,
         currentYear: null,
         selectedYear: null,
+        currentDateTime: null,
         saveIsEdit: true,
         currentAction: ""
     },
-    jqueryMap = {}, listMessages, onMenuHome, onChangeMessageGroupEvent, onEditMessage, onDeleteMessage, onCreateMessage, onSaveMessage,
+    jqueryMap = {}, listMessages, onMenuHome, onChangeMessageGroup, onEditMessage, onDeleteMessage, onCreateMessage, onSaveMessage,
             onLoginSuccess, messageCallback, setJqueryMap, configModule, initModule;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -101,18 +103,15 @@ aige.home = (function () {
     }
 
     function validateMessageForm() {
+        console.log("Validator running");
         var validator = $("#messageForm").validate({
             focusCleanup: true,
             rules: {
-                year: {required: true},
-                type: {required: true},
-                name: {required: true, minlength: 2},
-                shortname: {required: true, minlength: 2},
-                startDate: {required: true, germanDate: true},
-                startTime: {required: true},
-                endTime: {required: true},
-                meetingPoint: {required: true},
-                comments: {}
+             
+                name: {required: true},
+                messageShort: {required: true, minlength: 2, maxlength: 20},
+                dateTime: {required: true},
+                message:  {required: true}
             },
             errorClass: "errormessage",
             errorElement: "b",
@@ -155,9 +154,31 @@ aige.home = (function () {
     // Begin DOM method /listMessages/
 
     listMessages = function () {
+        var myMessage, messagelistLength;
+        jqueryMap.$messageListTableList.html("");
+
         jqueryMap.$contentWrapper.find("#headerMessage").text("Übersicht der Nachrichten für:  " + stateMap.selectedYear);
 
-        jqueryMap.$messageList.fadeIn(1000,"swing");
+        stateMap.messageList = configMap.general_model.getItems(configMap.object_type);
+        messagelistLength = stateMap.messageList.length;
+
+        console.log(JSON.stringify(stateMap.messageList));
+
+        for (var i = 0; i < messagelistLength; i++) {
+
+            myMessage = stateMap.messageList[i];
+            jqueryMap.$messageListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myMessage._id
+                    + "' id='btnEditMessage'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
+                    + myMessage._id + "'  id='btnDeleteMessage'  class='btnDelete'/></td><td>"
+                    + myMessage.name + "</td><td>"
+                    + myMessage.shortMessage + "</td><td>"
+                    + myMessage.dateTime + "</td><td>"
+                    + myMessage.message.substr(0,30) + (myMessage.message.length>30? ' ......' :'')+ "</td>"
+                    + "</tr>");
+
+        }
+
+        jqueryMap.$messageList.fadeIn(1000, "swing");
     }
 
     // End DOM method /listMessages/
@@ -195,9 +216,9 @@ aige.home = (function () {
     // Begin event handler /onCreateMessage/  
     onCreateMessage = function (event) {
         var currentDate = new Date();
-        var datetime = ((currentDate.getDate() < 10) ? "0" : "") + currentDate.getDate() + "/" + ((currentDate.getMonth() < 9) ? "0" : "") + (currentDate.getMonth() + 1) + "/" + currentDate.getFullYear();
-        datetime = datetime + " @ " + ((currentDate.getHours() < 10) ? "0" : "") + currentDate.getHours() + ":" + ((currentDate.getMinutes() < 10) ? "0" : "") + currentDate.getMinutes() + ":" + ((currentDate.getSeconds() < 10) ? "0" : "") + currentDate.getSeconds();
-
+        stateMap.currentDateTime = ((currentDate.getDate() < 10) ? "0" : "") + currentDate.getDate() + "/" + ((currentDate.getMonth() < 9) ? "0" : "") + (currentDate.getMonth() + 1) + "/" + currentDate.getFullYear();
+        stateMap.currentDateTime = stateMap.currentDateTime + " @ " + ((currentDate.getHours() < 10) ? "0" : "") + currentDate.getHours() + ":" + ((currentDate.getMinutes() < 10) ? "0" : "") + currentDate.getMinutes() + ":" + ((currentDate.getSeconds() < 10) ? "0" : "") + currentDate.getSeconds();
+        console.log(JSON.stringify(stateMap.currentDateTime));
         stateMap.currentAction = configMap.actionTypes.create;
         stateMap.saveIsEdit = false;
         jqueryMap.$messageFormValidator.resetForm();
@@ -205,8 +226,8 @@ aige.home = (function () {
         jqueryMap.$messageFormPopup.find("#headerMessageFormPopup").text("Neue Nachricht schreiben");
         jqueryMap.$messageFormPopup.fadeIn();
         jqueryMap.$messageForm.find("#txtMessageSender").val(stateMap.currentMember.username);
-        jqueryMap.$messageForm.find("#txtMessageDatum").val(datetime);
-        jqueryMap.$messageForm.find("#txtMessageShort").val("").focus();
+        jqueryMap.$messageForm.find("#txtMessageDateTime").val(stateMap.currentDateTime);
+        jqueryMap.$messageForm.find("#txtMessageShort").val("").focus().prop("disabled", false);
         jqueryMap.$messageForm.find("#txtMessageLong");
 
         jqueryMap.$overlay.fadeIn();
@@ -215,6 +236,121 @@ aige.home = (function () {
         return false;
     };
     // End event handler /onCreateMessage/  
+
+
+    // Begin event handler /onSaveMessage/  
+    /**
+     * 
+     * @param {type} event
+     * @returns {Boolean}
+     */
+    onSaveMessage = function (event) {
+
+        var messageMap, formParams,
+                year = $('#txtMessageGroupYear').val(),
+                searchParams = {searchParams: {year: year}};
+
+        if (!$(this).valid()) {
+            return false;
+        }
+
+        messageMap = {
+            _id: $(this).find('#txtMessageID').val(),
+            year: stateMap.selectedYear,
+            name: $(this).find('#txtMessageSender').val(),
+            shortMessage: $(this).find('#txtMessageShort').val(),
+            dateTime: $(this).find('#txtMessageDateTime').val(),
+            message: $(this).find('#txtMessageLong').val(),
+        };
+        formParams = aige.util.getFormData($(this));
+        console.log("formParams2=" + JSON.stringify(formParams));
+        console.log("formParams2=" + JSON.stringify(messageMap));
+
+        stateMap.saveIsEdit ?
+                configMap.general_model.updateItem(configMap.object_type, messageMap, messageCallback, searchParams) :
+                configMap.general_model.createItem(configMap.object_type, messageMap, messageCallback, searchParams);
+        jqueryMap.$messageFormPopup.fadeOut();
+        jqueryMap.$overlay.fadeOut();
+        event.preventDefault();
+    };
+    // End event handler /onSaveMessage/  
+
+
+
+    // Begin event handler /onDeleteMessage/  
+
+    onDeleteMessage = function (event) {
+
+        var searchParams = {searchParams: {year: stateMap.selectedYear}};
+        stateMap.currentAction = configMap.actionTypes.delete;
+        stateMap.selectedMessageId = $(this).attr("alt").replace("Delete", "");
+        stateMap.currentMessage = configMap.general_model.getById(configMap.object_type, stateMap.selectedMessageId);
+        console.log(" stateMap.currentMessage: " + JSON.stringify(stateMap.currentMessage));
+        if (stateMap.currentMember.username === stateMap.currentMessage.name) {
+            if (!confirm("Willst Du wirklich [" + stateMap.currentMessage.shortMessage + "] löschen?")) {
+                return false;
+            }
+            configMap.general_model.deleteItem(configMap.object_type, stateMap.currentMessage._id, messageCallback, searchParams);
+            event.preventDefault();
+        } else {
+            var $message = $("<span> Es ist nur erlaubt, eigene Nachrichten zu löschen.</span>")
+            aige.util.messageConfirm($message);
+        }
+        return false;
+
+    };
+    // End event handler /onDeleteMessage/  
+
+
+    // Begin event handler /onEditMessage/  
+    /**
+     * 
+     * @param {type} event
+     * @returns {Boolean}
+     */
+    onEditMessage = function (event) {
+
+        stateMap.currentAction = configMap.actionTypes.update;
+        stateMap.saveIsEdit = true;
+        stateMap.selectedMessageId = $(this).attr("alt").replace("Edit", "");
+        stateMap.currentMessage = configMap.general_model.getById(configMap.object_type, stateMap.selectedMessageId);
+        console.log(" stateMap.currentMessage: " + JSON.stringify(stateMap.currentMessage));
+        if (stateMap.currentMember.username === stateMap.currentMessage.name) {
+
+            jqueryMap.$messageForm.find("#txtMessageID").val(stateMap.currentMessage._id);
+            jqueryMap.$messageForm.find("#txtMessageSender").val(stateMap.currentMessage.name);
+            jqueryMap.$messageForm.find("#txtMessageShort").val(stateMap.currentMessage.shortMessage).prop("disabled", true);
+            jqueryMap.$messageForm.find("#txtMessageDateTime").val(stateMap.currentMessage.dateTime);
+            jqueryMap.$messageForm.find("#txtMessageLong").val(stateMap.currentMessage.message).focus();
+            jqueryMap.$overlay.fadeIn();
+            jqueryMap.$messageFormPopup.fadeIn();
+
+            aige.util.updatePopup(jqueryMap.$messageFormPopup);
+            event.preventDefault();
+        } else {
+            var $message = $("<span> Es ist nur erlaubt, eigene Nachrichten zu ändern.</span>")
+            aige.util.messageConfirm($message);
+        }
+        return false;
+    };
+    // End event handler /onEditMessage/  
+
+    // Begin event handler /onChangeMessageGroup/  
+    /**
+     * Is fired if option list with years as options repersenting an event group is changed.
+     * 
+     * @param {type} event
+     * @returns {false}
+     */
+    onChangeMessageGroup = function (event) {
+        stateMap.currentAction = configMap.actionTypes.list;
+        stateMap.selectedYear = $('#txtMessageGroupYear').val();
+        var searchParams = {searchParams: {year: stateMap.selectedYear}};
+        configMap.general_model.search(configMap.object_type, searchParams, messageCallback);
+        event.preventDefault();
+        return false;
+    };
+    // End event handler /onChangeMessageGroup/  
     //-------------------- END EVENT HANDLERS --------------------
 
 
@@ -283,7 +419,7 @@ aige.home = (function () {
         setJqueryMap();
         jqueryMap.$homeMenu.on('click', onMenuHome);
         $.gevent.subscribe(jqueryMap.$contentWrapper, 'show_messages', onMenuHome);
-        jqueryMap.$messageGroup.on("change", "#txtMessageGroupYear", onChangeMessageGroupEvent);
+        jqueryMap.$messageGroup.on("change", "#txtMessageGroupYear", onChangeMessageGroup);
         jqueryMap.$messageList.on("click", "#btnDeleteMessage", onDeleteMessage);
         jqueryMap.$messageList.on("click", "#btnEditMessage", onEditMessage);
 

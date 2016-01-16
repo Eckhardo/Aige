@@ -28,11 +28,15 @@ aige.model = (function () {
         count_db_result: null,
         member_id_map: {},
         event_id_map: {},
+        message_id_map: {},
+        task_id_map: {},
         current_saison: null,
         current_member: null,
         current_membership: null,
         member_list: [],
         event_list: [],
+        message_list: [],
+        task_list: [],
         unreg_membership_events: [],
         unreg_membership_members: [],
         ajaxCall: null
@@ -43,8 +47,8 @@ aige.model = (function () {
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //----------------- START UTILITY FUNCTIONS-----------------
-   clear_state_maps = function (object_type) {
-        console.log("clear state maps");
+    clear_state_maps = function (object_type) {
+        console.log("clear state maps:" + object_type);
         if (object_type === configMap.objectTypes.member) {
             stateMap.member_list = [];
             stateMap.member_id_map = {};
@@ -55,12 +59,18 @@ aige.model = (function () {
             stateMap.current_membership = null;
         } else if (object_type === configMap.objectTypes.saison) {
             stateMap.current_saison = null;
+        } else if (object_type === configMap.objectTypes.message) {
+            stateMap.message_list = [];
+            stateMap.message_id_map = {};
+        } else if (object_type === configMap.objectTypes.task) {
+            stateMap.task_list = [];
+            stateMap.task_id_map = {};
         }
     }
     ;
-     fill_state_maps = function (object_type, item_list) {
-        console.log("fill state maps");
-        var i = 0, my_member, my_event, my_membership;
+    fill_state_maps = function (object_type, item_list) {
+        console.log("fill state map:" + object_type);
+        var i = 0, my_member, my_event, my_membership,my_task, my_message;
         if (object_type === configMap.objectTypes.member) {
             stateMap.member_list = item_list;
             for (i = 0; i < stateMap.member_list.length; i++) {
@@ -74,7 +84,6 @@ aige.model = (function () {
                 stateMap.event_id_map[my_event._id] = my_event;
             }
         } else if (object_type === configMap.objectTypes.membership) {
-            ;
             for (i = 0; i < item_list.length; i++) {
                 stateMap.current_membership = item_list[i];
             }
@@ -82,6 +91,22 @@ aige.model = (function () {
             for (i = 0; i < item_list.length; i++) {
                 stateMap.current_saison = item_list[i];
                 break;
+            }
+
+        } else if (object_type === configMap.objectTypes.message) {
+            stateMap.message_list = item_list;
+            for (i = 0; i < stateMap.message_list.length; i++) {
+                my_message = stateMap.message_list[i];
+                stateMap.message_id_map[my_message._id] = my_message;
+                console.log("message: " + JSON.stringify(my_message));
+            }
+        }
+         else if (object_type === configMap.objectTypes.task) {
+            stateMap.task_list = item_list;
+            for (i = 0; i < stateMap.task_list.length; i++) {
+                my_task = stateMap.task_list[i];
+                stateMap.task_id_map[my_task._id] = my_task;
+                console.log("task: " + JSON.stringify(my_task));
             }
         }
     }
@@ -317,6 +342,11 @@ aige.model = (function () {
                 return stateMap.member_id_map[id];
             } else if (object_type === configMap.objectTypes.event) {
                 return stateMap.event_id_map[id];
+            } else if (object_type === configMap.objectTypes.message) {
+                return stateMap.message_id_map[id];
+            }
+             else if (object_type === configMap.objectTypes.task) {
+                return stateMap.task_id_map[id];
             } else {
                 throw Error("object type not suported: " + object_type);
             }
@@ -327,12 +357,14 @@ aige.model = (function () {
          * @returns {Array|stateMap.member_list|stateMap.event_list}
          */
         get_items = function (object_type) {
-
-
             if (object_type === configMap.objectTypes.member) {
                 return stateMap.member_list;
             } else if (object_type === configMap.objectTypes.event) {
                 return stateMap.event_list;
+            } else if (object_type === configMap.objectTypes.message) {
+                return stateMap.message_list;
+            } else if (object_type === configMap.objectTypes.task) {
+                return stateMap.task_list;
             } else {
                 throw Error("object type not suported: " + object_type);
             }
@@ -563,6 +595,10 @@ aige.model = (function () {
             return this.name + ' (' + this.startDate + ' : ' + this.startTime + '), ' + this.meetingPoint + ')';
 
         };
+        AigeEvent.prototype.startDateTime = function ( ) {
+            return  ' (' + this.startDate + ' : ' + this.startTime + ')';
+
+        };
         return {searchByNames: searchByNames,
             makeEventObject: makeEventObject};
     }());
@@ -605,7 +641,7 @@ aige.model = (function () {
         configModule: configModule,
         initModule: initModule,
         clearStateMaps: clear_state_maps,
-        fillStateMaps:fill_state_maps,
+        fillStateMaps: fill_state_maps,
         general: general,
         member: member,
         membership: membership,
