@@ -360,7 +360,8 @@ configRoutes = function (app, server) {
     app.get('/sign_s3', function (req, res) {
         var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
         var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
-        var S3_BUCKET = process.env.S3_BUCKET
+        var S3_BUCKET = process.env.S3_BUCKET;
+        console.log(AWS_ACCESS_KEY + ", " + AWS_SECRET_KEY + "," + S3_BUCKET);
         aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
         var s3 = new aws.S3();
         var s3_params = {
@@ -378,6 +379,7 @@ configRoutes = function (app, server) {
                     signed_request: data,
                     url: 'https://' + S3_BUCKET + '.s3.amazonaws.com/' + req.query.file_name
                 };
+                console.log(JSON.stringify("return data: "+ return_data));
                 res.write(JSON.stringify(return_data));
                 res.end();
             }
