@@ -30,9 +30,11 @@ aige.images = (function () {
                         + ' <input type="text" name="username" placeholder="Username" /><br />'
                         + '  <input type="text" name="full_name" placeholder="Full name" /><br /><br />'
                         + '  <hr />'
+              
                         + '  <h2>Save changes</h2>'
                         + '  <input type="submit" value="Update profile" />'
                         + '</form>'
+                  +  ' <a href="https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdf" title="mehr Informationen">Das href-Attribut</a> </a>'
                         + '</div>',
                 settable_map: {
                     general_model: true,
@@ -74,7 +76,9 @@ aige.images = (function () {
     onMenuImageUpload = function (event) {
         stateMap.currentAction = configMap.actionTypes.list;
         event.preventDefault();
+        var file='https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdf';
         jqueryMap.$contentWrapper.children().hide();
+          jqueryMap.$contentWrapper.append(file);
         jqueryMap.$fileUploadForm.show();
     };
     // End event handler /onMenuImageUpload/
@@ -164,6 +168,10 @@ aige.images = (function () {
         setJqueryMap();
         jqueryMap.$imageUploadMenu.on('click', onMenuImageUpload);
         jqueryMap.$fileUploadForm.on('submit', onUploadImage);
+        var seed = "https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdfs";
+$("a").on('click',function(){
+    $(this).attr('href', $(this).attr('href')+seed);
+});
 
         return true;
     };
