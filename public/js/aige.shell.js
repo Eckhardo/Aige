@@ -61,7 +61,8 @@ aige.shell = (function () {
                 actionTypes: {create: "create",
                     update: "update",
                     delete: "delete",
-                    list: "list"}
+                    list: "list",
+                upload:"upload"}
 
             },
     stateMap = {

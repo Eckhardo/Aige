@@ -21,6 +21,7 @@ var configRoutes,
         makeMongoId = crud.makeMongoId;
 
 var cool = require('cool-ascii-faces');
+var aws = require('aws-sdk');
 //------- END MODULE SCOPE VARIABLES -------
 
 
@@ -92,9 +93,9 @@ configRoutes = function (app, server) {
         );
     });
 
-/**
- * Create new item for given object type
- */
+    /**
+     * Create new item for given object type
+     */
     app.post('/:object_type/createItem', function (request, response) {
         console.log("routes create item");
         var object_type, item, set_map;
@@ -113,9 +114,9 @@ configRoutes = function (app, server) {
         );
     });
 
-/**
- *  Update item by id
- */
+    /**
+     *  Update item by id
+     */
     app.post('/:object_type/updateItem', function (request, response) {
         var object_type, item, id, find_map, set_map;
 
@@ -137,7 +138,7 @@ configRoutes = function (app, server) {
                 }
         );
     });
-    
+
     /**
      *  Inactivate item by id
      */
@@ -160,9 +161,9 @@ configRoutes = function (app, server) {
         );
     });
 
-/**
- * Delete item by id
- */
+    /**
+     * Delete item by id
+     */
     app.post('/:object_type/deleteItem', function (request, response) {
         var object_type, requestedId, id, find_map;
 
@@ -178,9 +179,9 @@ configRoutes = function (app, server) {
         );
     });
 
-/**
- *  Update saison events for given member
- */
+    /**
+     *  Update saison events for given member
+     */
     app.post('/:object_type/updateSaisonEventsForMember', function (request, response) {
         var object_type, requestedId, id, name, find_map, events, set_map, id, name;
 
@@ -190,7 +191,7 @@ configRoutes = function (app, server) {
         name = request.body.name;
 
         events = request.body.events;
-         find_map = {'_id': id, "memberEvents.memberName": name};
+        find_map = {'_id': id, "memberEvents.memberName": name};
         set_map = {"memberEvents.$.saisonEvents": events};
         crud.update(
                 object_type,
@@ -356,7 +357,32 @@ configRoutes = function (app, server) {
             );
         }
     });
-
+    app.get('/sign_s3', function (req, res) {
+        var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+        var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+        var S3_BUCKET = process.env.S3_BUCKET
+        aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
+        var s3 = new aws.S3();
+        var s3_params = {
+            Bucket: S3_BUCKET,
+            Key: req.query.file_name,
+            Expires: 60,
+            ContentType: req.query.file_type,
+            ACL: 'public-read'
+        };
+        s3.getSignedUrl('putObject', s3_params, function (err, data) {
+            if (err) {
+                console.log(err);
+            } else {
+                var return_data = {
+                    signed_request: data,
+                    url: 'https://' + S3_BUCKET + '.s3.amazonaws.com/' + req.query.file_name
+                };
+                res.write(JSON.stringify(return_data));
+                res.end();
+            }
+        });
+    });
 
 // end configRoutes
 };

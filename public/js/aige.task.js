@@ -2,6 +2,11 @@
  * aige.task.js
  * Task feature module, including working services fine-grained.
  *
+ *aws bucket: aige-file-upload
+ *Access Key ID:
+AKIAI3TXRY2BTPL5NP6A
+Secret Access Key:
+62Q+sCNgXuz/nS46RTyFmUuLExxD71foAhUsmQXD
  
  */
 
@@ -37,7 +42,7 @@ aige.task = (function () {
                         + '<h3 id="headerTask" style="text-align:center;"></h3>'
                         + '<table id="tblTaskList" class="tblList">'
                         + '<thead><tr><th></th><th></th>'
-                        + '<th>Von:</th><th>Betreff:</th><th>Datum</th><th>Nachricht</th>'
+                        + '<th>Tätigkeit</th><th>Detaildies</th><th>Koordinator</th><th>Besonderes</th>'
 
                         + '</tr></thead><tbody></tbody>'
                         + '</table>'

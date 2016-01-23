@@ -19,17 +19,27 @@ aige.images = (function () {
     //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     var
             configMap = {
-                image_upload_html: String()
+                image_upload_form_html: String()
                         + '<div id= "imageUpload" class="aige-admin-member-list">'
+                        + '<h2>Your avatar</h2>'
                         + ' <br>Please select an image'
-                        + '  <input type="file" id="image"> <br><img id="preview">'
+                        + '  <input type="file" id="file_input"> <br><img id="preview">'
+                        + '  <h2>Your information</h2>'
+                        + ' <form method="POST" action="/submit_form/">'
+                        + ' <input type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" />'
+                        + ' <input type="text" name="username" placeholder="Username" /><br />'
+                        + '  <input type="text" name="full_name" placeholder="Full name" /><br /><br />'
+                        + '  <hr />'
+                        + '  <h2>Save changes</h2>'
+                        + '  <input type="submit" value="Update profile" />'
+                        + '</form>'
                         + '</div>',
                 settable_map: {
                     general_model: true,
                     actionTypes: true}
             },
     stateMap = {$container: null},
-    jqueryMap = {}, onMenuImageUpload,
+    jqueryMap = {}, onMenuImageUpload, onUploadImage,
             setJqueryMap, configModule, initModule;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -44,14 +54,14 @@ aige.images = (function () {
                 $menu = $container.find('#cssmenu'),
                 $content = $container.find('.aige-shell-main-content'),
                 $contentWrapper = $container.find("#contentWrapper");
-        $contentWrapper.append($(configMap.image_upload_html));
-           var fileUpload = $contentWrapper.find('#imageUpload');
+        $contentWrapper.append($(configMap.image_upload_form_html));
+        var fileUploadForm = $contentWrapper.find('#imageUpload');
         jqueryMap = {
             $container: $container,
             $imageUploadMenu: $menu.find('#image_upload'),
             $overlay: $content.find("#overlay-bg"),
-            $contentWrapper:$contentWrapper,
-            $fileUpload:fileUpload
+            $contentWrapper: $contentWrapper,
+            $fileUploadForm: fileUploadForm
 
         };
     };
@@ -60,12 +70,64 @@ aige.images = (function () {
 
     //------------------- BEGIN EVENT HANDLERS -------------------
 
+    // Begin event handler /onMenuImageUpload/
     onMenuImageUpload = function (event) {
         stateMap.currentAction = configMap.actionTypes.list;
         event.preventDefault();
         jqueryMap.$contentWrapper.children().hide();
-           jqueryMap.$fileUpload.show();
+        jqueryMap.$fileUploadForm.show();
     };
+    // End event handler /onMenuImageUpload/
+
+    // // Begin event handler /onUploadImage/
+    onUploadImage = function (event) {
+        stateMap.currentAction = configMap.actionTypes.upload;
+        event.preventDefault();
+        console.log("Juhuu");
+
+        var files = document.getElementById("file_input").files;
+        var file = files[0];
+        if (file == null) {
+            alert("No file selected.");
+            return;
+        }
+        console.log("here");
+        get_signed_request(file);
+    };
+
+    function get_signed_request(file) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/sign_s3?file_name=" + file.name + "&file_type=" + file.type);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    upload_file(file, response.signed_request, response.url);
+                } else {
+                    alert("Could not get signed URL.");
+                }
+            }
+        };
+        xhr.send();
+    }
+
+
+    function upload_file(file, signed_request, url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", signed_request);
+        xhr.setRequestHeader('x-amz-acl', 'public-read');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                document.getElementById("preview").src = url;
+                document.getElementById("avatar_url").value = url;
+            }
+        };
+        xhr.onerror = function () {
+            alert("Could not upload file.");
+        };
+        xhr.send(file);
+    }
+    // // Begin event handler /onUploadImage/
     //-------------------- END EVENT HANDLERS --------------------
 
 
@@ -101,6 +163,7 @@ aige.images = (function () {
         stateMap.$container = $container;
         setJqueryMap();
         jqueryMap.$imageUploadMenu.on('click', onMenuImageUpload);
+        jqueryMap.$fileUploadForm.on('submit', onUploadImage);
 
         return true;
     };

@@ -1,8 +1,11 @@
-heroku open: remote open
+heroku oheroku open
+pen: remote open
 heroku local: localhost open
 heroku login 1af112AB
 
-git push heroku master
+git add .
+ git commit -am "make it better"
+ git push heroku master
 
 
 heroku addons:create papertrail
@@ -24,4 +27,7 @@ heroku addons:docs mongolab
 heroku fork --from sourceapp --to targetapp --region eu
 
  heroku domains:remove -a aige www.example.com
+
+heroku config:set AWS_ACCESS_KEY=AKIAI3TXRY2BTPL5NP6A AWS_SECRET_KEY=62Q+sCNgXuz/nS46RTyFmUuLExxD71foAhUsmQXD
+ heroku config:set S3_BUCKET=aige-file-upload
 
