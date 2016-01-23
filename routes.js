@@ -379,11 +379,20 @@ configRoutes = function (app, server) {
                     signed_request: data,
                     url: 'https://' + S3_BUCKET + '.s3.amazonaws.com/' + req.query.file_name
                 };
-                console.log(JSON.stringify("return data: "+ return_data));
+                console.log(JSON.stringify("return data: " + return_data.url));
                 res.write(JSON.stringify(return_data));
                 res.end();
             }
         });
+    });
+    app.post('/submit_form', function (req, res) {
+        var username = req.body.username;
+        var full_name = req.body.full_name;
+        var avatar_url = req.body.avatar_url;
+        var result = {username: username, full_name: full_name, avatar_url: avatar_url};
+        console.log("submit_form"+ JSON.stringify(result));
+
+        response.json(result);
     });
 
 // end configRoutes
