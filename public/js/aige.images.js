@@ -56,7 +56,7 @@ aige.images = (function () {
                 $menu = $container.find('#cssmenu'),
                 $content = $container.find('.aige-shell-main-content'),
                 $contentWrapper = $container.find("#contentWrapper");
-        $contentWrapper.append($(configMap.image_upload_form_html));
+     //   $contentWrapper.append($(configMap.image_upload_form_html));
         var fileUploadForm = $contentWrapper.find('#imageUpload');
         jqueryMap = {
             $container: $container,
@@ -166,12 +166,12 @@ aige.images = (function () {
     initModule = function ($container) {
         stateMap.$container = $container;
         setJqueryMap();
-        jqueryMap.$imageUploadMenu.on('click', onMenuImageUpload);
-        jqueryMap.$fileUploadForm.on('submit', onUploadImage);
-        var seed = "https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdfs";
-$("a").on('click',function(){
-    $(this).attr('href', $(this).attr('href')+seed);
-});
+ //       jqueryMap.$imageUploadMenu.on('click', onMenuImageUpload);
+ //       jqueryMap.$fileUploadForm.on('submit', onUploadImage);
+ //       var seed = "https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdfs";
+//$("a").on('click',function(){
+ //   $(this).attr('href', $(this).attr('href')+seed);
+//});
 
         return true;
     };

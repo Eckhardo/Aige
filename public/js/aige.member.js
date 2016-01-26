@@ -20,7 +20,7 @@ aige.member = (function () {
 //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     var configMap = {
         member_list_html: String()
-                + '<div id= "memberList" class="aige-admin-member-list">'
+                + '<div id= "memberList" class="aige-admin-member-list" style="height:40em; overflow:auto;">>'
                 + '<div id="btnCreateMember" class="buttonCreate"> Neu anlegen</div>'
 
                 + '<table id="tblMemberList" class="tblList">'

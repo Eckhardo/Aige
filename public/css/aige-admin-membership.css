@@ -12,9 +12,9 @@ and open the template in the editor.
     margin-left: auto ;
     margin-right: auto ;
     bottom        : 0;
-    top           : 10px;
+    top           : 2px;
     right         : 0;
-    left         : 10px;
+    left         : 2px;
     width         : 80em;
     height        : 10em;
     background: #fff;
@@ -25,6 +25,8 @@ and open the template in the editor.
     box-shadow    : 0 0 0.75em 0 #888;
     z-index       : 1;
     display: none;
+    
+    
 }
 
 
@@ -107,6 +109,7 @@ and open the template in the editor.
     box-shadow    : 0 0 0.75em 0 #888;
     z-index       : 1;
     display: none;
+ 
 }
 
 ul{
@@ -134,8 +137,10 @@ ul label{
 .tblList{
     width:100%;
     border:solid 1px;
-    text-align:left;
+    text-align: center;
     border-collapse:collapse; 
+    
+   
 }
 .highlight tr {
       background: red;
@@ -147,12 +152,12 @@ ul label{
 }
 .tblList tbody tr:nth-child(2n){
     border:solid 1px;
-    height:30px;
+    height:20px;
       background:#cad2ce ;
 }
 .tblList tbody tr td{
     border:solid 1px;
-    padding: 5px;
+    padding: 2px;
 }
 
 .tblList thead{
@@ -164,7 +169,7 @@ ul label{
 .buttonCreate {
     cursor: pointer; 
     text-align: center;
-    padding: 5px;
+    padding: 2px;
 }
 .buttonClose{
 

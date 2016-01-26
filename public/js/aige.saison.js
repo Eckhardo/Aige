@@ -19,7 +19,7 @@ aige.saison = (function () {
     var
             configMap = {
                 saison_html: String()
-                        + '<div id="currentSaison" class="aige-admin-member-list">'
+                        + '<div id="currentSaison" class="aige-admin-member-list" style="height:40em; overflow:auto;">'
                         + '<div id="saisonGroup" class="buttonCreate">'
                         + '<form id = "saisonGroupForm">'
                         + '<input type = "hidden" id = "txtSaisonGroupID"/>'

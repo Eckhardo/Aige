@@ -34,7 +34,7 @@ aige.data = (function () {
                 success: function (result) {
                     promise.resolve(result);
                 },
-                timeout: 3000,
+                timeout: 10000,
                 dataType: 'json',
                 contentType: 'application/json',
                 error: function () {
@@ -51,7 +51,7 @@ aige.data = (function () {
                 success: function (result) {
                     promise.resolve(result);
                 },
-                timeout: 3000,
+                timeout: 10000,
                 data: JSON.stringify({search: searchParams}),
                 dataType: 'json',
                 contentType: 'application/json',
@@ -78,7 +78,7 @@ aige.data = (function () {
                     promise.resolve(result);
                 },
                 data: JSON.stringify({id: id}),
-                timeout: 3000,
+                timeout: 10000,
                 dataType: 'json',
                 contentType: 'application/json',
                 error: function (result) {
@@ -97,7 +97,7 @@ aige.data = (function () {
                     promise.resolve(result);
                 },
                 data: JSON.stringify({id: id}),
-                timeout: 3000,
+                timeout: 10000,
                 dataType: 'json',
                 contentType: 'application/json',
                 error: function (result) {
