@@ -258,7 +258,7 @@ aige.member = (function () {
             if (!confirm("Willst Du wirklich [" + theMember.username + "] inaktivieren ?")) {
                 return false;
             }
-            configMap.general_model.inactivateItem(configMap.object_type, theMember._id, memberCallback);
+            configMap.general_model.deleteItem(configMap.object_type, theMember._id, memberCallback);
         }
 
     };

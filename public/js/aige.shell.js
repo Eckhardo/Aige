@@ -44,7 +44,7 @@ aige.shell = (function () {
                         + '<li> <a href="#"> <span id="admin_event">Ereignisse</span></a></li>'
                         + '<li> <a href="#"> <span id="admin_membership"> Mitgliedschaft </span></a> </li>'
                         + '<li>  <a href="#"><span id="admin_saison">Termine</span></a></li>'
-                        + '<li>  <a href="#"><span id="admin_tasks">Arbeitsdienste</span></a></li>'
+                     
                         + '</ul>'
                         + '</li>'
                         + '<li class="has-sub"><a href="#"><span>Dienste</span></a>'
