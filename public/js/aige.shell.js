@@ -315,7 +315,7 @@ aige.shell = (function () {
         $message = $("<span>Die Die Anmeldung war nicht erfolgreich:" + errorMessage + "</span>");
         aige.util.messageError($message);
         jqueryMap.$loginWindow
-                .text('Please sign-in');
+                .text('Bitte einloggen');
     };
     // End Event handler /onClickChat/
     //-------------------- END EVENT HANDLERS --------------------
