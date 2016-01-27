@@ -61,8 +61,7 @@ aige.shell = (function () {
                 actionTypes: {create: "create",
                     update: "update",
                     delete: "delete",
-                    list: "list",
-                upload:"upload"}
+                    list: "list"}
 
             },
     stateMap = {
@@ -315,7 +314,7 @@ aige.shell = (function () {
         $message = $("<span>Die Die Anmeldung war nicht erfolgreich:" + errorMessage + "</span>");
         aige.util.messageError($message);
         jqueryMap.$loginWindow
-                .text('Bitte einloggen');
+                .text('Bitte anmelden');
     };
     // End Event handler /onClickChat/
     //-------------------- END EVENT HANDLERS --------------------
@@ -394,7 +393,7 @@ aige.shell = (function () {
         $.gevent.subscribe(jqueryMap.$loginWindow, 'login-success', onLogin);
         $.gevent.subscribe(jqueryMap.$loginWindow, 'login-fail', onLoginFail);
         jqueryMap.$loginWindow
-                .text('Please sign-in')
+                .text('Bitte anmelden')
                 .bind('click', onSignIn);
         $('#cssmenu > ul > li >  a ').on('click', handleMenu);
         $('#cssmenu > ul > li.has-sub > ul > li > a').on('click', 'span', findMenuAction);
