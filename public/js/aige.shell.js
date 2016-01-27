@@ -284,7 +284,7 @@ aige.shell = (function () {
     onSignIn = function (event) {
 
         if (!stateMap.user_is_logged_in) {
-            var user_name = prompt('Bitte anmelden', 'Ecki');
+            var user_name = prompt('Bitte anmelden', '');
             var searchParams = {searchParams: {username: user_name}};
             console.log("user name input=" + user_name);
             aige.model.member.login(searchParams);
