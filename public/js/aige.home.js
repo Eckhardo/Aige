@@ -36,7 +36,7 @@ aige.home = (function () {
                         + '<div id="buttonCreateMessage" class="buttonCreate"> Neu anlegen</div>'
                         + '<h3 id="headerMessage" style="text-align:center;"></h3>'
                         + '<table id="tblMessageList" class="tblList">'
-                        + '<thead><tr><th></th><th></th>'
+                        + '<thead><tr><th></th>'
                         + '<th>Von:</th><th>Betreff:</th><th>Datum</th><th>Nachricht</th>'
 
                         + '</tr></thead><tbody></tbody>'
@@ -90,7 +90,7 @@ aige.home = (function () {
         saveIsEdit: true,
         currentAction: ""
     },
-    jqueryMap = {}, listMessages, onMenuHome, onChangeMessageGroup, onEditMessage, onDeleteMessage, onCreateMessage, onSaveMessage,
+    jqueryMap = {}, listMessages, onMenuHome, onChangeMessageGroup, onEditMessage, onCreateMessage, onSaveMessage,
             onLoginSuccess, messageCallback, setJqueryMap, configModule, initModule;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -168,12 +168,11 @@ aige.home = (function () {
 
             myMessage = stateMap.messageList[i];
             jqueryMap.$messageListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myMessage._id
-                    + "' id='btnEditMessage'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
-                    + myMessage._id + "'  id='btnDeleteMessage'  class='btnDelete'/></td><td>"
+                    + "' id='btnEditMessage'  class='btnEdit'/></td><td>"
                     + myMessage.name + "</td><td>"
                     + myMessage.shortMessage + "</td><td>"
                     + myMessage.dateTime + "</td><td>"
-                    + myMessage.message.substr(0,30) + (myMessage.message.length>30? ' ......' :'')+ "</td>"
+                    + myMessage.message.substr(0,70) + (myMessage.message.length>70? ' ......' :'')+ "</td>"
                     + "</tr>");
 
         }
@@ -263,9 +262,7 @@ aige.home = (function () {
             message: $(this).find('#txtMessageLong').val(),
         };
         formParams = aige.util.getFormData($(this));
-        console.log("formParams2=" + JSON.stringify(formParams));
-        console.log("formParams2=" + JSON.stringify(messageMap));
-
+ 
         stateMap.saveIsEdit ?
                 configMap.general_model.updateItem(configMap.object_type, messageMap, messageCallback, searchParams) :
                 configMap.general_model.createItem(configMap.object_type, messageMap, messageCallback, searchParams);
@@ -275,31 +272,6 @@ aige.home = (function () {
     };
     // End event handler /onSaveMessage/  
 
-
-
-    // Begin event handler /onDeleteMessage/  
-
-    onDeleteMessage = function (event) {
-
-        var searchParams = {searchParams: {year: stateMap.selectedYear}};
-        stateMap.currentAction = configMap.actionTypes.delete;
-        stateMap.selectedMessageId = $(this).attr("alt").replace("Delete", "");
-        stateMap.currentMessage = configMap.general_model.getById(configMap.object_type, stateMap.selectedMessageId);
-        console.log(" stateMap.currentMessage: " + JSON.stringify(stateMap.currentMessage));
-        if (stateMap.currentMember.username === stateMap.currentMessage.name) {
-            if (!confirm("Willst Du wirklich [" + stateMap.currentMessage.shortMessage + "] löschen?")) {
-                return false;
-            }
-            configMap.general_model.deleteItem(configMap.object_type, stateMap.currentMessage._id, messageCallback, searchParams);
-            event.preventDefault();
-        } else {
-            var $message = $("<span> Es ist nur erlaubt, eigene Nachrichten zu löschen.</span>")
-            aige.util.messageConfirm($message);
-        }
-        return false;
-
-    };
-    // End event handler /onDeleteMessage/  
 
 
     // Begin event handler /onEditMessage/  
@@ -315,7 +287,7 @@ aige.home = (function () {
         stateMap.selectedMessageId = $(this).attr("alt").replace("Edit", "");
         stateMap.currentMessage = configMap.general_model.getById(configMap.object_type, stateMap.selectedMessageId);
         console.log(" stateMap.currentMessage: " + JSON.stringify(stateMap.currentMessage));
-        if (stateMap.currentMember.username === stateMap.currentMessage.name) {
+   
 
             jqueryMap.$messageForm.find("#txtMessageID").val(stateMap.currentMessage._id);
             jqueryMap.$messageForm.find("#txtMessageSender").val(stateMap.currentMessage.name);
@@ -327,10 +299,7 @@ aige.home = (function () {
 
             aige.util.updatePopup(jqueryMap.$messageFormPopup);
             event.preventDefault();
-        } else {
-            var $message = $("<span> Es ist nur erlaubt, eigene Nachrichten zu ändern.</span>")
-            aige.util.messageConfirm($message);
-        }
+       
         return false;
     };
     // End event handler /onEditMessage/  
@@ -420,9 +389,7 @@ aige.home = (function () {
         jqueryMap.$homeMenu.on('click', onMenuHome);
         $.gevent.subscribe(jqueryMap.$contentWrapper, 'show_messages', onMenuHome);
         jqueryMap.$messageGroup.on("change", "#txtMessageGroupYear", onChangeMessageGroup);
-        jqueryMap.$messageList.on("click", "#btnDeleteMessage", onDeleteMessage);
-        jqueryMap.$messageList.on("click", "#btnEditMessage", onEditMessage);
-
+         jqueryMap.$messageList.on("click", "#btnEditMessage", onEditMessage);
         jqueryMap.$messageList.on("click", "#buttonCreateMessage", onCreateMessage);
         jqueryMap.$messageForm.on('submit', onSaveMessage);
         jqueryMap.$messageForm.on("click", "#buttonCloseMessage", closePopup);

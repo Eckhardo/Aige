@@ -55,7 +55,7 @@
   bottom : 0;
 }
 .aige-shell-main-nav {
-  width      : 250px;
+  width      : 225px;
   background : #eee;
   z-index    : 1;
 }
@@ -64,7 +64,7 @@
   }
 
 .aige-shell-main-content {
-  left  : 250px;
+  left  : 225px;
   right : 0;
   background : #ddd;
 }
