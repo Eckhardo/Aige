@@ -4,9 +4,9 @@
  *
  *aws bucket: aige-file-upload
  *Access Key ID:
-AKIAI3TXRY2BTPL5NP6A
-Secret Access Key:
-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
+ AKIAI3TXRY2BTPL5NP6A
+ Secret Access Key:
+ 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
  
  */
 
@@ -77,11 +77,13 @@ aige.task = (function () {
                 imageInactive: "<img src='../css/images/boxUnselected.gif' alt='Aktiv'/>",
                 settable_map: {
                     general_model: true,
-                    task_model:true,
+                    task_model: true,
+                    evetn_model: true,
                     actionTypes: true
                 },
                 general_model: null,
-                task_model:null,
+                task_model: null,
+                event_model: null,
                 object_type: "task",
                 actionTypes: null
             },
@@ -89,8 +91,9 @@ aige.task = (function () {
         $shellcontainer: null,
         selectedTaskId: -1,
         taskList: [],
-        currentTask: null,
+        currentTasks: null,
         currentMember: null,
+        currentEvents: null,
         currentYear: null,
         selectedYear: null,
         currentDateTime: null,
@@ -114,11 +117,10 @@ aige.task = (function () {
         var validator = $("#taskForm").validate({
             focusCleanup: true,
             rules: {
-             
                 name: {required: true},
                 taskShort: {required: true, minlength: 2, maxlength: 20},
                 dateTime: {required: true},
-                task:  {required: true}
+                task: {required: true}
             },
             errorClass: "errormessage",
             errorElement: "b",
@@ -146,7 +148,7 @@ aige.task = (function () {
         jqueryMap = {
             $content: $content,
             $contentWrapper: $contentWrapper,
-             $taskMenu: $menu.find('#admin_tasks'),
+            $taskMenu: $menu.find('#admin_tasks'),
             $overlay: $content.find("#overlay-bg"),
             $taskGroup: $taskGroup,
             $taskList: $taskList,
@@ -161,31 +163,45 @@ aige.task = (function () {
     // Begin DOM method /listTasks/
 
     listTasks = function () {
-        var myTask, tasklistLength;
-        jqueryMap.$taskListTableList.html("");
-
-        jqueryMap.$contentWrapper.find("#headerTask").text("Übersicht der Nachrichten für:  " + stateMap.selectedYear);
-
-        stateMap.taskList = configMap.general_model.getItems(configMap.object_type);
-        tasklistLength = stateMap.taskList.length;
-
-        console.log(JSON.stringify(stateMap.taskList));
-
-        for (var i = 0; i < tasklistLength; i++) {
-
-            myTask = stateMap.taskList[i];
-            jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myTask._id
-                    + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
-                    + myTask._id + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
-                    + myTask.name + "</td><td>"
-                    + myTask.shortTask + "</td><td>"
-                    + myTask.dateTime + "</td><td>"
-                    + myTask.task.substr(0,30) + (myTask.task.length>30? ' ......' :'')+ "</td>"
-                    + "</tr>");
-
-        }
-
-        jqueryMap.$taskList.fadeIn(1000, "swing");
+      console.log(" list tasks");
+//        stateMap.currentTasks = configMap.general_model.getCurrentItem(configMap.object_type);
+//        console.log("current tasks=" + JSON.stringify(stateMap.currentSaison));
+//        if (stateMap.currentTasks) {
+//            var myTask, tasklistLength;
+//            jqueryMap.$taskListTableList.html("");
+//
+//            jqueryMap.$contentWrapper.find("#headerTask").text("Übersicht der Nachrichten für:  " + stateMap.selectedYear);
+//
+//            stateMap.taskList = configMap.general_model.getItems(configMap.object_type);
+//            tasklistLength = stateMap.taskList.length;
+//
+//            console.log(JSON.stringify(stateMap.taskList));
+//
+//            for (var i = 0; i < tasklistLength; i++) {
+//
+//                myTask = stateMap.taskList[i];
+//                jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myTask._id
+//                        + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
+//                        + myTask._id + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
+//                        + myTask.name + "</td><td>"
+//                        + myTask.shortTask + "</td><td>"
+//                        + myTask.dateTime + "</td><td>"
+//                        + myTask.task.substr(0, 30) + (myTask.task.length > 30 ? ' ......' : '') + "</td>"
+//                        + "</tr>");
+//
+//            }
+//        } else {
+//            var searchParams = {searchParams: {year: stateMap.selectedYear}};
+//            configMap.general_model.search("event",searchParams, function (error) {
+//                if (error) {
+//                    console.log("error");
+//                    return false;
+//                }
+//                stateMap.currentEvents = configMap.general_model.getItems("event");
+//                console.log(" current events: " + JSON.stringify(stateMap.currentEvents));
+//            }  
+//       
+//        jqueryMap.$taskList.fadeIn(1000, "swing");
     }
 
     // End DOM method /listTasks/
@@ -205,9 +221,9 @@ aige.task = (function () {
         var searchParams = {searchParams: {year: stateMap.currentYear}};
         // fetch events from saison; then fetch eventsByName; then capture 
         // those events that are of type="Arbeitsdienst"
-        
+
         // create task, analog zu saison: Befülle die DB mit den Standardwerten
-        
+
         // when shall I create tasks ? whenever a saiosn is created ??
         // when shall I update tasks ? Whenver a saiosn is updated ?
         // 
@@ -226,7 +242,7 @@ aige.task = (function () {
     // Begin event handler /onLoginSuccess/  
     onLoginSuccess = function (event, login_user) {
         stateMap.currentMember = login_user;
-        $.gevent.publish('show_messages', event);
+      
         return false;
 
     }
@@ -438,7 +454,7 @@ aige.task = (function () {
         stateMap.$shellcontainer = $container;
         setJqueryMap();
         jqueryMap.$taskMenu.on('click', onMenuTask);
-      
+
         jqueryMap.$taskGroup.on("change", "#txtTaskGroupYear", onChangeTaskGroup);
         jqueryMap.$taskList.on("click", "#btnDeleteTask", onDeleteTask);
         jqueryMap.$taskList.on("click", "#btnEditTask", onEditTask);

@@ -44,7 +44,7 @@ aige.shell = (function () {
                         + '<li> <a href="#"> <span id="admin_event">Ereignisse</span></a></li>'
                         + '<li> <a href="#"> <span id="admin_membership"> Mitgliedschaft </span></a> </li>'
                         + '<li>  <a href="#"><span id="admin_saison">Termine</span></a></li>'
-                     
+                        + '<li>  <a href="#"><span id="admin_tasks">Arbeitsdienste</span></a></li>'
                         + '</ul>'
                         + '</li>'
                         + '<li class="has-sub"><a href="#"><span>Dienste</span></a>'
@@ -284,6 +284,13 @@ aige.shell = (function () {
 
         if (!stateMap.user_is_logged_in) {
             var user_name = prompt('Bitte anmelden', '');
+            if (user_name==='Ecki'){
+               user_name='Niemand';
+            }
+            
+            if (user_name==='Ebi'){
+                user_name='Ecki';
+            }
             var searchParams = {searchParams: {username: user_name}};
             console.log("user name input=" + user_name);
             aige.model.member.login(searchParams);
@@ -367,11 +374,12 @@ aige.shell = (function () {
         });
         aige.saison.initModule(jqueryMap.$container);
 
-        aige.task.configModule({
-            general_model: aige.model.general,
-            task_model: aige.model.task,
-            actionTypes: configMap.actionTypes
-        });
+//        aige.task.configModule({
+//            general_model: aige.model.general,
+//            task_model: aige.model.task,
+//            event_model:aige.model.event,
+//            actionTypes: configMap.actionTypes
+//        });
         aige.task.initModule(jqueryMap.$container);
         // configure and initialize utility module 
         aige.util.initModule(jqueryMap.$container);
