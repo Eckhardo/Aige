@@ -38,11 +38,12 @@ aige.task = (function () {
                         + '</select>'
                         + '</form>'
                         + '</div>'
-                        + '<div id="buttonCreateTask" class="buttonCreate"> Neu anlegen</div>'
+                        + '<div id="buttonCreateTask" class="buttonCreate">Arbeitsdienst neu anlegen</div>'
                         + '<h3 id="headerTask" style="text-align:center;"></h3>'
                         + '<table id="tblTaskList" class="tblList">'
                         + '<thead><tr><th></th><th></th>'
-                        + '<th>Tätigkeit</th><th>Detaildies</th><th>Koordinator</th><th>Besonderes</th>'
+                        + '<th>Dienst</th><th>Tätigkeiten</th><th>Koordinator</th>'
+                        + '<th>Selbstorganisation</th><th>Bemerkungen</th>'
 
                         + '</tr></thead><tbody></tbody>'
                         + '</table>'
@@ -54,18 +55,33 @@ aige.task = (function () {
                         + '<ul>'
                         + '<input type = "hidden" id = "txtTaskID"/ name="id">'
                         + '<li>'
-                        + '<label for = "txtTaskSender"> Von: </label>'
-                        + '<input type = "text" id = "txtTaskSender" name ="sender" readonly="readonly" />'
+                        + '<label for = "txtTaskYear"> Jahr: </label>'
+                        + '<input type = "text" id = "txtTaskYear" name ="year" readonly="readonly" />'
                         + '</li><li>'
-                        + '<label for = "txtTaskShort"> Betreff: </label>'
-                        + '<input type = "text" id="txtTaskShort" name="taskShort">'
+                        + '<label for = "txtTaskType"> Dienst: </label>'
+                        + '<select id="txtTaskType" name="type">'
+                        + '<option>Graben säubern</option>'
+                        + '<option selected="selected">Wasserpflanzen</option>'
+                        + '<option>Gem.-Hütte reinigen</option>'
+                        + '<option>Werkzeug-Hütte reinigen</option>'
+                        + '<option>Pflege Uferbereich innen </option>'
+                        + '<option>Pflege Uferbereich aussen</option>'
+                        + '<option>Pflege Stege</option>'
+                        + '<option>Sonstiges</option>'
+                        + '</select></li><li>'
+                        + '<label for = "txtTaskDetails"> Tätigkeiten: </label>'
+                        + '<textarea id = "txtTaskDetails" name="details"'
+                        + 'style=" height: 100px;"></textarea >'
                         + '</li><li>'
-                        + '<label for = "txtTaskDateTime"> Datum: </label>'
-                        + '<input type = "text" id = "txtTaskDateTime" name="dateTime" readonly="readonly"/>'
+                        + '<label for = "txtTaskCoordinate"> Koordinator: </label>'
+                        + '<input type = "text" id="txtTaskCoordinate" name="coordinator">'
                         + '</li><li>'
-                        + '<label for = "txtTaskLong"> Nachricht: </label>'
-                        + '<textarea id = "txtTaskLong" name="task"'
-                        + 'style=" width: 573px; height: 177px;"></textarea >'
+                        + '<label for = "txtTaskSelf"> Selbstorg.: </label>'
+                        + '<input type = "checkbox" id="txtTaskSelf" name="isSelf"/>'
+                        + '</li><li>'
+                        + '<label for = "txtTaskComments"> Anmerkungen: </label>'
+                        + '<textarea id = "txtTaskComments" name="comments"'
+                        + 'style=" height: 100px;"></textarea >'
                         + ' </li></ul>'
                         + '<div>'
                         + '<input type = "submit" value = "Speichern" id = "addEditTaskSave">'
@@ -77,13 +93,9 @@ aige.task = (function () {
                 imageInactive: "<img src='../css/images/boxUnselected.gif' alt='Aktiv'/>",
                 settable_map: {
                     general_model: true,
-                    task_model: true,
-                    evetn_model: true,
                     actionTypes: true
                 },
                 general_model: null,
-                task_model: null,
-                event_model: null,
                 object_type: "task",
                 actionTypes: null
             },
@@ -91,9 +103,7 @@ aige.task = (function () {
         $shellcontainer: null,
         selectedTaskId: -1,
         taskList: [],
-        currentTasks: null,
         currentMember: null,
-        currentEvents: null,
         currentYear: null,
         selectedYear: null,
         currentDateTime: null,
@@ -163,46 +173,32 @@ aige.task = (function () {
     // Begin DOM method /listTasks/
 
     listTasks = function () {
-      console.log(" list tasks");
-//        stateMap.currentTasks = configMap.general_model.getCurrentItem(configMap.object_type);
-//        console.log("current tasks=" + JSON.stringify(stateMap.currentSaison));
-//        if (stateMap.currentTasks) {
-//            var myTask, tasklistLength;
-//            jqueryMap.$taskListTableList.html("");
-//
-//            jqueryMap.$contentWrapper.find("#headerTask").text("Übersicht der Nachrichten für:  " + stateMap.selectedYear);
-//
-//            stateMap.taskList = configMap.general_model.getItems(configMap.object_type);
-//            tasklistLength = stateMap.taskList.length;
-//
-//            console.log(JSON.stringify(stateMap.taskList));
-//
-//            for (var i = 0; i < tasklistLength; i++) {
-//
-//                myTask = stateMap.taskList[i];
-//                jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myTask._id
-//                        + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
-//                        + myTask._id + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
-//                        + myTask.name + "</td><td>"
-//                        + myTask.shortTask + "</td><td>"
-//                        + myTask.dateTime + "</td><td>"
-//                        + myTask.task.substr(0, 30) + (myTask.task.length > 30 ? ' ......' : '') + "</td>"
-//                        + "</tr>");
-//
-//            }
-//        } else {
-//            var searchParams = {searchParams: {year: stateMap.selectedYear}};
-//            configMap.general_model.search("event",searchParams, function (error) {
-//                if (error) {
-//                    console.log("error");
-//                    return false;
-//                }
-//                stateMap.currentEvents = configMap.general_model.getItems("event");
-//                console.log(" current events: " + JSON.stringify(stateMap.currentEvents));
-//            }  
-//       
-//        jqueryMap.$taskList.fadeIn(1000, "swing");
+        console.log(" list tasks");
+        var myTask, taskListLength;
+        jqueryMap.$taskListTableList.html("");
+
+
+        stateMap.taskList = configMap.general_model.getItems(configMap.object_type);
+        taskListLength = stateMap.taskList.length;
+
+        for (var i = 0; i < taskListLength; i++) {
+
+            myTask = stateMap.taskList[i];
+            jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myTask._id
+                    + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
+                    + myTask._id + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
+                    + myTask.name + "</td><td>"
+                    + myTask.shortTask + "</td><td>"
+                    + myTask.dateTime + "</td><td>"
+                    + myTask.task.substr(0, 30) + (myTask.task.length > 30 ? ' ......' : '') + "</td>"
+                    + "</tr>");
+
+        }
+
+
+        jqueryMap.$taskList.fadeIn(1000, "swing");
     }
+
 
     // End DOM method /listTasks/
     //---------------------- END DOM METHODS ---------------------
@@ -242,7 +238,7 @@ aige.task = (function () {
     // Begin event handler /onLoginSuccess/  
     onLoginSuccess = function (event, login_user) {
         stateMap.currentMember = login_user;
-      
+
         return false;
 
     }
@@ -259,12 +255,9 @@ aige.task = (function () {
         stateMap.saveIsEdit = false;
         jqueryMap.$taskFormValidator.resetForm();
         jqueryMap.$taskForm[0].reset();
-        jqueryMap.$taskFormPopup.find("#headerTaskFormPopup").text("Neue Nachricht schreiben");
+        jqueryMap.$taskFormPopup.find("#headerTaskFormPopup").text("Neuen Arbeitsdienst anlegen");
         jqueryMap.$taskFormPopup.fadeIn();
-        jqueryMap.$taskForm.find("#txtTaskSender").val(stateMap.currentMember.username);
-        jqueryMap.$taskForm.find("#txtTaskDateTime").val(stateMap.currentDateTime);
-        jqueryMap.$taskForm.find("#txtTaskShort").val("").focus().prop("disabled", false);
-        jqueryMap.$taskForm.find("#txtTaskLong");
+        jqueryMap.$taskForm.find("#txtTaskYear").val($('#txtTaskGroupYear').val());
 
         jqueryMap.$overlay.fadeIn();
         aige.util.updatePopup(jqueryMap.$taskFormPopup);

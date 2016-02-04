@@ -374,12 +374,10 @@ aige.shell = (function () {
         });
         aige.saison.initModule(jqueryMap.$container);
 
-//        aige.task.configModule({
-//            general_model: aige.model.general,
-//            task_model: aige.model.task,
-//            event_model:aige.model.event,
-//            actionTypes: configMap.actionTypes
-//        });
+        aige.task.configModule({
+            general_model: aige.model.general,
+            actionTypes: configMap.actionTypes
+        });
         aige.task.initModule(jqueryMap.$container);
         // configure and initialize utility module 
         aige.util.initModule(jqueryMap.$container);

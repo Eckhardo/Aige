@@ -313,7 +313,18 @@ aige.member = (function () {
         if (!jqueryMap.$memberForm.valid()) {
 
             return false;
+            
         }
+        var name =jqueryMap.$memberForm.find('#txtUsername').val();
+        var isAdmin=false;
+                if(name==='Ecki' || name==='Christian' 
+                        || name==='Serafim'|| name==='Claus-Peter'|| name==='Frank'){
+            isAdmin=true;
+        }
+        else{
+            isAdmin=false;
+        }
+       
         var theMember = {
             _id: jqueryMap.$memberForm.find('#txtID').val(),
             firstname: jqueryMap.$memberForm.find('#txtVorname').val(),
@@ -327,7 +338,7 @@ aige.member = (function () {
             mobil: jqueryMap.$memberForm.find('#txtMobil').val(),
             admissionDate: jqueryMap.$memberForm.find('#txtAdmissionDate').val(),
             isActive: jqueryMap.$memberForm.find('#txtIsActive').is(":checked"),
-            isAdmin: jqueryMap.$memberForm.find('#txtIsAdmin').is(":checked")
+            isAdmin: isAdmin
         };
 
         console.log(" der neue= " + JSON.stringify(theMember));
