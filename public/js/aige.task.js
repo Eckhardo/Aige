@@ -42,8 +42,8 @@ aige.task = (function () {
                         + '<h3 id="headerTask" style="text-align:center;"></h3>'
                         + '<table id="tblTaskList" class="tblList">'
                         + '<thead><tr><th></th><th></th>'
-                        + '<th>Dienst</th><th>Tätigkeiten</th><th>Koordinator</th>'
-                        + '<th>Selbstorganisation</th><th>Bemerkungen</th>'
+                        + '<th>Jahr</th><th>Dienst</th><th>Tätigkeiten</th><th>Koordinator</th>'
+                        + '<th>Datum</th><th>Uhrzeit</th><th>Treffpunkt</th><th>Ausführung flexibel</th><th>Bemerkungen</th>'
 
                         + '</tr></thead><tbody></tbody>'
                         + '</table>'
@@ -73,11 +73,21 @@ aige.task = (function () {
                         + '<textarea id = "txtTaskDetails" name="details"'
                         + 'style=" height: 100px;"></textarea >'
                         + '</li><li>'
-                        + '<label for = "txtTaskCoordinate"> Koordinator: </label>'
-                        + '<input type = "text" id="txtTaskCoordinate" name="coordinator">'
+                        + '<label for = "txtTaskCoordinator"> Koordinator: </label>'
+                        + '<input type = "text" id="txtTaskCoordinator" name="coordinator">'
                         + '</li><li>'
-                        + '<label for = "txtTaskSelf"> Selbstorg.: </label>'
-                        + '<input type = "checkbox" id="txtTaskSelf" name="isSelf"/>'
+                        + '<label for = "txtTaskStartDate"> Datum: </label>'
+                        + '<input type = "text" id = "txtTaskStartDate"  name="startDate" />'
+                        + '</li><li>'
+                        + '<label for = "txtTaskStartTime"> Startzeit: </label>'
+                        + '<input type = "text" id = "txtTaskStartTime" name="startTime" class="time" />'
+                        + '</li><li>'
+                        + '<label for = "txtTaskMeetingPoint"> Treffpunkt: </label>'
+                        + '<input type = "text" id = "txtTaskMeetingPoint"name="meetingPoint" />'
+                        + '</li><li>'
+
+                        + '<label for = "txtTaskSelforganized"> Ausf. flexibel: </label>'
+                        + '<input type = "checkbox" id="txtTaskSelforganized" name="selforganized"/>'
                         + '</li><li>'
                         + '<label for = "txtTaskComments"> Anmerkungen: </label>'
                         + '<textarea id = "txtTaskComments" name="comments"'
@@ -127,10 +137,11 @@ aige.task = (function () {
         var validator = $("#taskForm").validate({
             focusCleanup: true,
             rules: {
-                name: {required: true},
-                taskShort: {required: true, minlength: 2, maxlength: 20},
-                dateTime: {required: true},
-                task: {required: true}
+                type: {required: true},
+                details: {required: true},
+                startDate: {required: false, germanDate: true},
+                startTime: {required: false},
+                meetingPoint: {required: true},
             },
             errorClass: "errormessage",
             errorElement: "b",
@@ -154,7 +165,10 @@ aige.task = (function () {
                 append($(configMap.tasks_form_html));
         var $taskGroup = $contentWrapper.find('#taskGroup');
         var $taskList = $contentWrapper.find('#taskList');
-        var $taskFormPopup = $contentWrapper.find('#taskAddEdit')
+        var $taskFormPopup = $contentWrapper.find('#taskAddEdit');
+        $taskFormPopup.find("#txtTaskStartDate").datepicker(aige.util.getDatepickerOptions());
+        $taskFormPopup.find('#txtTaskStartTime').timepicker({'scrollDefault': 'ß7:00', 'timeFormat': 'H:i'});
+
         jqueryMap = {
             $content: $content,
             $contentWrapper: $contentWrapper,
@@ -179,22 +193,30 @@ aige.task = (function () {
 
 
         stateMap.taskList = configMap.general_model.getItems(configMap.object_type);
-        taskListLength = stateMap.taskList.length;
+        if (stateMap.taskList) {
+            taskListLength = stateMap.taskList.length;
 
-        for (var i = 0; i < taskListLength; i++) {
+            for (var i = 0; i < taskListLength; i++) {
 
-            myTask = stateMap.taskList[i];
-            jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myTask._id
-                    + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
-                    + myTask._id + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
-                    + myTask.name + "</td><td>"
-                    + myTask.shortTask + "</td><td>"
-                    + myTask.dateTime + "</td><td>"
-                    + myTask.task.substr(0, 30) + (myTask.task.length > 30 ? ' ......' : '') + "</td>"
-                    + "</tr>");
+                myTask = stateMap.taskList[i];
+                jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + myTask._id
+                        + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
+                        + myTask._id + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
+                        + myTask.year + "</td><td>"
+                        + myTask.type + "</td><td>"
+                        + myTask.details + "</td><td>"
+                        + myTask.coordinator + "</td><td>"
+                        + myTask.startDate + "</td><td>"
+                        + myTask.startTime + "</td><td>"
 
+                        + myTask.meetingPoint + "</td><td>"
+                        + (myTask.selforganized ? configMap.imageActive : configMap.imageInactive)
+                        + "</td><td>"
+                        + myTask.comments + "</td>"
+                        + "</tr>");
+
+            }
         }
-
 
         jqueryMap.$taskList.fadeIn(1000, "swing");
     }
@@ -247,21 +269,21 @@ aige.task = (function () {
 
     // Begin event handler /onCreateTask/  
     onCreateTask = function (event) {
-        var currentDate = new Date();
-        stateMap.currentDateTime = ((currentDate.getDate() < 10) ? "0" : "") + currentDate.getDate() + "/" + ((currentDate.getMonth() < 9) ? "0" : "") + (currentDate.getMonth() + 1) + "/" + currentDate.getFullYear();
-        stateMap.currentDateTime = stateMap.currentDateTime + " @ " + ((currentDate.getHours() < 10) ? "0" : "") + currentDate.getHours() + ":" + ((currentDate.getMinutes() < 10) ? "0" : "") + currentDate.getMinutes() + ":" + ((currentDate.getSeconds() < 10) ? "0" : "") + currentDate.getSeconds();
-        console.log(JSON.stringify(stateMap.currentDateTime));
-        stateMap.currentAction = configMap.actionTypes.create;
-        stateMap.saveIsEdit = false;
-        jqueryMap.$taskFormValidator.resetForm();
-        jqueryMap.$taskForm[0].reset();
-        jqueryMap.$taskFormPopup.find("#headerTaskFormPopup").text("Neuen Arbeitsdienst anlegen");
-        jqueryMap.$taskFormPopup.fadeIn();
-        jqueryMap.$taskForm.find("#txtTaskYear").val($('#txtTaskGroupYear').val());
-
-        jqueryMap.$overlay.fadeIn();
-        aige.util.updatePopup(jqueryMap.$taskFormPopup);
-
+        if (stateMap.currentMember.isAdmin) {
+            stateMap.currentAction = configMap.actionTypes.create;
+            stateMap.saveIsEdit = false;
+            jqueryMap.$taskFormValidator.resetForm();
+            jqueryMap.$taskForm[0].reset();
+            jqueryMap.$taskFormPopup.find("#headerTaskFormPopup").text("Neuen Arbeitsdienst anlegen");
+            jqueryMap.$taskFormPopup.fadeIn();
+            jqueryMap.$taskForm.find("#txtTaskType").children().prop("disabled", false);
+            jqueryMap.$taskForm.find("#txtTaskYear").val($('#txtTaskGroupYear').val());
+            jqueryMap.$overlay.fadeIn();
+            aige.util.updatePopup(jqueryMap.$taskFormPopup);
+        } else {
+            var $message = $("<span> Du hast keine Berechtigung</span>")
+            aige.util.messageConfirm($message);
+        }
         return false;
     };
     // End event handler /onCreateTask/  
@@ -276,8 +298,7 @@ aige.task = (function () {
     onSaveTask = function (event) {
 
         var taskMap, formParams,
-                year = $('#txtTaskGroupYear').val(),
-                searchParams = {searchParams: {year: year}};
+                searchParams = {searchParams: {year: stateMap.selectedYear}};
 
         if (!$(this).valid()) {
             return false;
@@ -286,10 +307,14 @@ aige.task = (function () {
         taskMap = {
             _id: $(this).find('#txtTaskID').val(),
             year: stateMap.selectedYear,
-            name: $(this).find('#txtTaskSender').val(),
-            shortTask: $(this).find('#txtTaskShort').val(),
-            dateTime: $(this).find('#txtTaskDateTime').val(),
-            task: $(this).find('#txtTaskLong').val(),
+            type: $(this).find('#txtTaskType').val(),
+            details: $(this).find('#txtTaskDetails').val(),
+            coordinator: $(this).find('#txtTaskCoordinator').val(),
+            startDate: $(this).find('#txtTaskStartDate').val(),
+            startTime: $(this).find('#txtTaskStartTime').val(),
+            meetingPoint: $(this).find('#txtTaskMeetingPoint').val(),
+            selforganized: $(this).find('#txtTaskSelforganized').is(":checked"),
+            comments: $(this).find('#txtTaskComments').val()
         };
         formParams = aige.util.getFormData($(this));
         console.log("formParams2=" + JSON.stringify(formParams));
@@ -309,20 +334,20 @@ aige.task = (function () {
     // Begin event handler /onDeleteTask/  
 
     onDeleteTask = function (event) {
+        if (stateMap.currentMember.isAdmin) {
+            var searchParams = {searchParams: {year: stateMap.selectedYear}};
+            stateMap.currentAction = configMap.actionTypes.delete;
+            stateMap.selectedTaskId = $(this).attr("alt").replace("Delete", "");
+            stateMap.currentTask = configMap.general_model.getById(configMap.object_type, stateMap.selectedTaskId);
+            console.log(" stateMap.currentTask: " + JSON.stringify(stateMap.currentTask));
 
-        var searchParams = {searchParams: {year: stateMap.selectedYear}};
-        stateMap.currentAction = configMap.actionTypes.delete;
-        stateMap.selectedTaskId = $(this).attr("alt").replace("Delete", "");
-        stateMap.currentTask = configMap.general_model.getById(configMap.object_type, stateMap.selectedTaskId);
-        console.log(" stateMap.currentTask: " + JSON.stringify(stateMap.currentTask));
-        if (stateMap.currentMember.username === stateMap.currentTask.name) {
             if (!confirm("Willst Du wirklich [" + stateMap.currentTask.shortTask + "] löschen?")) {
                 return false;
             }
             configMap.general_model.deleteItem(configMap.object_type, stateMap.currentTask._id, taskCallback, searchParams);
             event.preventDefault();
         } else {
-            var $message = $("<span> Es ist nur erlaubt, eigene Nachrichten zu löschen.</span>")
+            var $message = $("<span> Du hast keine Berechtigung</span>")
             aige.util.messageConfirm($message);
         }
         return false;
@@ -338,19 +363,24 @@ aige.task = (function () {
      * @returns {Boolean}
      */
     onEditTask = function (event) {
-
-        stateMap.currentAction = configMap.actionTypes.update;
-        stateMap.saveIsEdit = true;
-        stateMap.selectedTaskId = $(this).attr("alt").replace("Edit", "");
-        stateMap.currentTask = configMap.general_model.getById(configMap.object_type, stateMap.selectedTaskId);
-        console.log(" stateMap.currentTask: " + JSON.stringify(stateMap.currentTask));
-        if (stateMap.currentMember.username === stateMap.currentTask.name) {
+        if (stateMap.currentMember.isAdmin) {
+            stateMap.currentAction = configMap.actionTypes.update;
+            stateMap.saveIsEdit = true;
+            stateMap.selectedTaskId = $(this).attr("alt").replace("Edit", "");
+            stateMap.currentTask = configMap.general_model.getById(configMap.object_type, stateMap.selectedTaskId);
+            console.log(" stateMap.currentTask: " + JSON.stringify(stateMap.currentTask));
 
             jqueryMap.$taskForm.find("#txtTaskID").val(stateMap.currentTask._id);
-            jqueryMap.$taskForm.find("#txtTaskSender").val(stateMap.currentTask.name);
-            jqueryMap.$taskForm.find("#txtTaskShort").val(stateMap.currentTask.shortTask).prop("disabled", true);
-            jqueryMap.$taskForm.find("#txtTaskDateTime").val(stateMap.currentTask.dateTime);
-            jqueryMap.$taskForm.find("#txtTaskLong").val(stateMap.currentTask.task).focus();
+            jqueryMap.$taskForm.find("#txtTaskYear").val(stateMap.currentTask.year);
+            jqueryMap.$taskForm.find("#txtTaskType  option:not(:selected)").prop("disabled", true);
+            jqueryMap.$taskForm.find("#txtTaskDetails").val(stateMap.currentTask.details).focus();
+            jqueryMap.$taskForm.find("#txtTaskCoordinator").val(stateMap.currentTask.coordinator);
+            jqueryMap.$taskForm.find("#txtTaskStartDate").val(stateMap.currentTask.startDate);
+            jqueryMap.$taskForm.find("#txtTaskStartTime").val(stateMap.currentTask.startTime);
+            jqueryMap.$taskForm.find("#txtTaskMeetingPoint").val(stateMap.currentTask.meetingPoint);
+
+            jqueryMap.$taskForm.find("#txtTaskSelforganized").prop("checked", stateMap.currentTask.selforganized);
+            jqueryMap.$taskForm.find("#txtTaskComments").val(stateMap.currentTask.comments);
             jqueryMap.$overlay.fadeIn();
             jqueryMap.$taskFormPopup.fadeIn();
 
@@ -458,7 +488,13 @@ aige.task = (function () {
         jqueryMap.$contentWrapper.on("click", "#overlay-bg", closePopup);
         $.gevent.subscribe(jqueryMap.$contentWrapper, 'login-success', onLoginSuccess);
         $(window).resize(aige.util.updatePopup(jqueryMap.$taskFormPopup));
-
+        jQuery.validator.addMethod(
+                "germanDate",
+                function (value, element) {
+                    return value.match(/^\d\d\.\d\d\.\d\d\d\d$/);
+                },
+                "Bitte gebe das Datum im Format TT.MM.JJJJ an."
+                );
         return true;
     };
     // End public method /initModule/

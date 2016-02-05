@@ -316,14 +316,16 @@ aige.member = (function () {
             
         }
         var name =jqueryMap.$memberForm.find('#txtUsername').val();
+        var thename = jqueryMap.$memberForm.find('#txtNachname').val();
+        
         var isAdmin=false;
                 if(name==='Ecki' || name==='Christian' 
                         || name==='Serafim'|| name==='Claus-Peter'|| name==='Frank'){
             isAdmin=true;
         }
-        else{
-            isAdmin=false;
-        }
+       if(thename==='David'){
+           isAdmin=true;
+       }
        
         var theMember = {
             _id: jqueryMap.$memberForm.find('#txtID').val(),
