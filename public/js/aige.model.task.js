@@ -25,424 +25,164 @@ aige.model.task = (function () {
         objectTypes: null
     },
     stateMap = {
-        ajaxCall: null
+        ajaxCall: null,
+        currentTask: null,
+        taskList: [],
+        workingEventList: []
     },
-    initModule, configModule, make_saison, create_saison, update_saison_events_for_member, add_saison__members_and_events,
-            delete_saison__members_and_events, get_saison_events_by_name;
+    initModule, configModule, find_tasks, make_task_container, get_working_event_list, initialize_tasks;
 
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //----------------- START UTILITY FUNCTIONS-----------------
-    function make_member_events(members, events) {
-        var i, j, _member, _saisonEvent, _member_events = [];
-        for (i = 0; i < members.length; i++) {
-            _member = {memberName: members[i], saisonEvents: []};
-            for (j = 0; j < events.length; j++) {
-                _saisonEvent = {eventName: events[j], confirmed: false, tookPart: false};
-                _member.saisonEvents.push(_saisonEvent);
-            }
-            _member_events.push(_member);
-        }
 
-        return _member_events;
-    }
+    function filterWorkingEvents(membership_event_names, events) {
 
-    function make_saison_events(events) {
-        var saison_events = [], _saisonEvent;
+        var result = [], _event;
         for (var i = 0; i < events.length; i++) {
-            _saisonEvent = {eventName: events[i], confirmed: false, tookPart: false};
-            saison_events.push(_saisonEvent)
-        }
-        return saison_events;
-    }
-
-    function checkForModifications(membership, saison) {
-        var deltas = {addedMembers: [], deletedMembers: [], addedEvents: [],
-            deletedEvents: []};
-        var members = membership.members;
-        var events = membership.events;
-        var saisonMembers = saison.members;
-        var saisonEvents = saison.events;
-
-
-        console.log(" members:" + JSON.stringify(members));
-        console.log(" saison members: " + JSON.stringify(saisonMembers));
-        console.log(" events:" + JSON.stringify(events));
-        console.log(" saison events: " + JSON.stringify(saisonEvents));
-
-        deltas.addedMembers = findItems(members, saisonMembers, true);
-        deltas.deletedMembers = findItems(members, saisonMembers, false);
-        deltas.addedEvents = findItems(events, saisonEvents, true);
-        deltas.deletedEvents = findItems(events, saisonEvents, false);
-        console.log(" deltas added : " + JSON.stringify(deltas));
-
-        return deltas;
-    }
-
-    function findItems(membershipArray, saisonArray, searchAdded) {
-        var result = [], _object, checkword;
-        if (searchAdded) {
-            _object = buildObjectFromArray(saisonArray);
-            for (var i = 0; i < membershipArray.length; i++) {
-                checkword = membershipArray[i];
-                _object[checkword] ? null : result.push(checkword);
-            }
-
-        } else {
-            _object = buildObjectFromArray(membershipArray);
-            for (var i = 0; i < saisonArray.length; i++) {
-                checkword = saisonArray[i];
-                _object[checkword] ? null : result.push(checkword);
-            }
-        }
-        return result;
-    }
-
-
-    function buildObjectFromArray(array) {
-        var result = {};
-        if (array) {
-            for (var i = 0; i < array.length; i++) {
-                result[array[i]] = true;
-            }
-        }
-        return result;
-    }
-    /**
-     * 
-     * @param {type} checkedFormParamEventKeys
-     * @param {type} eventKeyValues
-     * @returns {Array}
-     */
-    function extractSaisonEvents(checkedFormParamEventKeys, eventKeyValues) {
-        var saisonEvents = [], myEvent = {}, eventName, latestEventName, createNewEvent, j = 0;
-        for (var field in eventKeyValues) {
-            if (eventKeyValues.hasOwnProperty(field)) {
-                var saison_event = eventKeyValues[field];
-                for (var event_key in saison_event) {
-                    var eventNameStatusNameArray = event_key.split("XYZ", event_key.length);
-                    for (j = 0; j < eventNameStatusNameArray.length; j++) {
-                        if (j === 0) {
-                            eventName = eventNameStatusNameArray[j];
-                            latestEventName === eventName ? createNewEvent = true :
-                                    myEvent.eventName = eventName;
-                        } else {
-                            if (checkedFormParamEventKeys[event_key]) {
-                                eventNameStatusNameArray[j] === "confirmed" ?
-                                        myEvent.confirmed = true : myEvent.tookPart = true;
-                            } else {
-                                eventNameStatusNameArray[j] === "confirmed" ?
-                                        myEvent.confirmed = false : myEvent.tookPart = false;
-
-                            }
-                        }
-                    }
-
-                }
-                if (createNewEvent) {
-                    saisonEvents.push(myEvent);
-                    myEvent = {};
-                    createNewEvent = false;
+            _event = events[i];
+            if (_event.type === "Arbeitsdienst") {
+                if (aige.util.containsItem(membership_event_names, _event.name)) {
+                    result.push(_event);
                 }
 
-                latestEventName = eventName;
             }
-        }
-        return saisonEvents;
-    }
 
+        }
+        console.log("result " + JSON.stringify(result));
+        return result;
+    }
 //----------------- END UTILITY FUNCTIONS-----------------
 
 
-// The model.saison object API
+// The model.task object API
     // -------------------
-    // This APi comprises saison specific public methods and works closely together
+    // This APi comprises task specific public methods and works closely together
     // with the   model.general object API (this provides generic methods for CRUD, and places the results
     // via the whole model available methods fill_state_maps.
 
-    make_saison = function (membership_map) {
-        return new AigeSaison(membership_map);
+    make_task_container = function (membership, events, subtasks) {
+        var working_task, working_task_container;
+
+        stateMap.workingEventList = filterWorkingEvents(membership.events, events);
+
+        if (!aige.util.arrayIsNullOrEmpty(stateMap.workingEventList)) {
+
+            working_task_container = (new AigeTask(membership.year, null, stateMap.workingEventList, subtasks, membership.members));
+
+
+        }
+        return working_task_container;
+
     };
 
-    var AigeSaison = function (membership_map) {
-        var i, j, _member, _saisonEvent;
-        if (membership_map) {
-            this.year = membership_map.year;
-            this.name = membership_map.name;
-            this.comment = membership_map.comment;
-            this.isActive = membership_map.isActive;
-            this.events = membership_map.events;
-            this.members = membership_map.members;
-            this.memberEvents = [];
+    var AigeTask = function (year, workingTasks, workingEvents, subtasks, members) {
 
-            for (i = 0; i < membership_map.members.length; i++) {
-                _member = {memberName: membership_map.members[i], saisonEvents: []};
-                for (j = 0; j < this.events.length; j++) {
-                    _saisonEvent = {eventName: this.events[j], confirmed: false, tookPart: false};
-                    _member.saisonEvents.push(_saisonEvent);
-                }
-                this.memberEvents.push(_member);
+        this.year = year;
+        this.workingTasks = [];
+        if (!workingTasks) { // parameter was omitted in call)}
+            for (var i = 0; i < workingEvents.length; i++) {
+                this.workingTasks.push({name: workingEvents[i].name, subtasks: subtasks, members: members, member_subtasks: []});
             }
+        } else {
+            this.workingTasks = workingTasks;
         }
         return this;
     };
 
-    /**
-     * 
-     */
-    AigeSaison.prototype.saisonProto = {
-        get_is_active: function () {
-            return this.isActive;
+    AigeTask.prototype.workingEvents = function () {
+        var eventnames = [];
+        for (var i = 0; i < this.workingTasks.length; i++) {
+            eventnames.push(this.workingTasks[i].name);
         }
+        return eventnames;
+    }
 
-    };
-
-
-
-    /**
-     * 
-     * @param {type} membership
-     * @param {type} callback
-     * @returns {undefined}
-     */
-    create_saison = function (membership, callback) {
-        var saison = make_saison(membership);
-        console.log("current saison new =" + JSON.stringify(saison));
-
-        aige.model.general.createItem(configMap.objectTypes.saison, saison, function (error) {
-            if (error) {
-                callback(error);
-            } else {
-                callback(null);
-            }
-        });
-    };
-
-    /**
-     * 
-     * @param {type} searchParams
-     * @param {type} callback
-     * @returns {undefined}
-     */
-    add_saison__members_and_events = function (searchParams, callback) {
-        var _membership, search_membership, _saison, add_events, add_members, search_saison;
-        search_membership = stateMap.ajaxCall.search(configMap.objectTypes.membership, searchParams);
-        search_membership.done(function (membership_list) {
-            // 1. fetch fresh membership
-            aige.model.clearStateMaps(configMap.objectTypes.membership);
-            aige.model.fillStateMaps(configMap.objectTypes.membership, membership_list);
-            _membership = aige.model.general.getCurrentItem(configMap.objectTypes.membership);
-            _saison = aige.model.general.getCurrentItem(configMap.objectTypes.saison);
-            // 2. look for meber/event candidates to be added/deleted
-            var deltas = checkForModifications(_membership, _saison);
-            console.log("deltas=" + JSON.stringify(deltas));
-
-            var events = _membership.events;
-            var members = _membership.members;
-
-
-            var memberSaisonEvents = [];
-
-            var saisonEvents = make_saison_events(deltas.addedEvents);
-            console.log("add saison events: " + JSON.stringify(saisonEvents));
-            if (aige.util.objectFieldsNotEmpty(deltas)) {
-                console.log("NOW:  add events: " + JSON.stringify(deltas.addedEvents));
-                add_events = stateMap.ajaxCall.addEventsToSaison(configMap.objectTypes.saison, _saison._id, deltas.addedEvents, saisonEvents, members);
-                add_events.done(function (count_adds) {
-                    console.log("# added events: " + JSON.stringify(count_adds));
-                    console.log("NOW:  add members: " + JSON.stringify(deltas.addedMembers));
-                    memberSaisonEvents = make_member_events(deltas.addedMembers, events);
-                    console.log("# member events: " + JSON.stringify(memberSaisonEvents));
-                    add_members = stateMap.ajaxCall.addMembersToSaison(configMap.objectTypes.saison, _saison._id, deltas.addedMembers, memberSaisonEvents);
-                    add_members.done(function (count_adds) {
-                        console.log("# added members: " + JSON.stringify(count_adds));
-                        search_saison = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
-                        search_saison.done(function (item_list) {
-                            console.log("# searched done: " + JSON.stringify(count_adds));
-                            aige.model.clearStateMaps(configMap.objectTypes.saison);
-                            aige.model.fillStateMaps(configMap.objectTypes.saison, item_list);
-                            callback(null);
-                        }).fail(function (error) {
-                            setTimeout(function () {
-                                callback(error);
-                            }, 3000);
-                        });
-
-                    }).fail(function (error) {
-                        setTimeout(function () {
-                            console.log("# updates error: " + JSON.stringify(error));
-                            callback(error);
-                        }, 3000);
-                    });
-
-
-                }).fail(function (error) {
-                    setTimeout(function () {
-                        console.log("callback error 1: " + JSON.stringify(error));
-                        callback(error);
-                    }, 3000);
-                });
-
-
-
-
-            } else {
-                // nothing to be updated
-                callback(null);
-            }
-        }).fail(function (error) {
-            setTimeout(function () {
-                console.log("callback error 3: " + JSON.stringify(error));
-                callback(error);
-            }, 3000);
-        });
-    };
-
-
-    /**
-     * 
-     * @param {type} searchParams
-     * @param {type} callback
-     * @returns {undefined}
-     */
-    delete_saison__members_and_events = function (searchParams, callback) {
-        var _membership, search_membership, _saison, delete_events, delete_members, search_saison;
-        search_membership = stateMap.ajaxCall.search(configMap.objectTypes.membership, searchParams);
-        search_membership.done(function (membership_list) {
-            // 1. fetch fresh membership
-            aige.model.clearStateMaps(configMap.objectTypes.membership);
-            aige.model.fillStateMaps(configMap.objectTypes.membership, membership_list);
-            _membership = aige.model.general.getCurrentItem(configMap.objectTypes.membership);
-            _saison = aige.model.general.getCurrentItem(configMap.objectTypes.saison);
-            // 2. look for meber/event candidates to be added/deleted
-            var deltas = checkForModifications(_membership, _saison);
-            console.log("deltas=" + JSON.stringify(deltas));
-            var members = _membership.members;
-            var events = _membership.events;
-            var memberSaisonEvents = [];
-
-
-            if (aige.util.objectFieldsNotEmpty(deltas)) {
-                console.log("NOW:  delete members: " + JSON.stringify(deltas.deletedMembers));
-                delete_members = stateMap.ajaxCall.deleteMembersFromSaison(configMap.objectTypes.saison, _saison._id, deltas.deletedMembers);
-                delete_members.done(function (count_deletes) {
-                    console.log("# deleted members: " + JSON.stringify(count_deletes));
-
-                    console.log("NOW:  delete events: " + JSON.stringify(deltas.deletedEvents));
-                    delete_events = stateMap.ajaxCall.deleteEventsFromSaison(configMap.objectTypes.saison, _saison._id, deltas.deletedEvents, members);
-                    delete_events.done(function (count_deletes) {
-                        console.log("# deleted events: " + JSON.stringify(count_deletes));
-                        search_saison = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
-                        search_saison.done(function (item_list) {
-                            console.log("# searched done: " + JSON.stringify(item_list));
-                            aige.model.clearStateMaps(configMap.objectTypes.saison);
-                            aige.model.fillStateMaps(configMap.objectTypes.saison, item_list);
-                            callback(null);
-                        }).fail(function (error) {
-                            setTimeout(function () {
-                                callback(error);
-                            }, 3000);
-                        });
-
-                    }).fail(function (error) {
-                        setTimeout(function () {
-                            console.log("callback error 2: " + JSON.stringify(error));
-                            callback(error);
-                        }, 3000);
-                    });
-
-
-                }).fail(function (error) {
-                    setTimeout(function () {
-                        callback(error);
-                    }, 3000);
-                });
-
-
-
-            } else {
-                // nothing to be updated
-                callback(null);
-            }
-        }).fail(function (error) {
-            setTimeout(function () {
-                callback(error);
-            }, 3000);
-        });
-
-    };
-
-
-
-    /**
-     * This routine captures user inputs (checked/unchecked checkboxes represening whether a user 
-     * would confimr to take part at an event and/or actually took part (for hsitory).
-     * @param {type} saisonId - the saison
-     * @param {type} memberName the member of choice for the sasion
-     * @param {type} checkedFormParamEventKeys - checked checkboxes representing whehther
-     *  an event is confirmed and/or tookPart
-     * @param {type} eventKeyValues - the 'original' values (confimred && || tookpart) for each event
-     * @param {type} callback - a callback thhat handles errors and delegates to the view.
-     * @returns {undefined}
-     */
-    update_saison_events_for_member = function (saisonId, year, memberName, checkedFormParamEventKeys, eventKeyValues, callback) {
-
-        //    console.log("checkedFormParamEventKeys=" + JSON.stringify(checkedFormParamEventKeys));
-        //    console.log("eventKeyValues=" + JSON.stringify(eventKeyValues));
-
-        console.log("year=" + JSON.stringify(year));
-        var saisonEvents = extractSaisonEvents(checkedFormParamEventKeys, eventKeyValues);
-        var searchParams = {searchParams: {year: year}};
-        var update, search;
-
-        update = stateMap.ajaxCall.updateSaisonEventsForMember(configMap.objectTypes.saison, saisonId, memberName, saisonEvents);
-        aige.model.clearStateMaps(configMap.objectTypes.saison);
-        update.done(function (count_updates) {
-            search = stateMap.ajaxCall.search(configMap.objectTypes.saison, searchParams);
-            search.done(function (item_list) {
-                console.log("saions=" + JSON.stringify(item_list));
-                aige.model.fillStateMaps(configMap.objectTypes.saison, item_list);
-                callback(null);
-            }).fail(function (error) {
-                setTimeout(function () {
-                    callback(error);
-                }, 3000);
-            });
-        }).fail(function (error) {
-            setTimeout(function () {
-                callback(error);
-            }, 3000);
-        });
-
-    };
-
-
-    /**
-     * Fetches the saiosn events for a given name
-     * @param {type} name
-     * @param {type} callback
-     * @returns {undefined}
-     */
-    get_saison_events_by_name = function (name, callback) {
-
-        var result;
-        var saison = aige.model.general.getCurrentItem(configMap.objectTypes.saison);
-        var members = saison.memberEvents;
-        var membersLength = members.length;
-
-        for (var i = 0; i < membersLength; i++) {
-            if (members[i].memberName === name) {
-                result = members[i];
-                break;
-            }
-        }
-        console.log("saison for member =" + JSON.stringify(result));
-        callback(result);
-    };
 
 
 
     //------------------- BEGIN PUBLIC METHODS -------------------
+    find_tasks = function (object_type, searchParams, callback) {
+        var task_object, search_task_promise = stateMap.ajaxCall.search(object_type, searchParams);
+        var search_events_promise = stateMap.ajaxCall.search(configMap.objectTypes.event, searchParams);
+        $.when(search_task_promise, search_events_promise).then(function (task_list, event_list) {
+            if (!aige.util.arrayIsNullOrEmpty(task_list)) {
+              
+          
+                console.log("task_list " + JSON.stringify(task_list));
+                stateMap.currentTask = new AigeTask(task_list[0].year, task_list[0].workingTasks, null, null, null);
+                stateMap.taskList.push(stateMap.currentTask);
+                console.log("stateMap.currentTask " + JSON.stringify(stateMap.currentTask));
+                stateMap.workingEventList = filterWorkingEvents(stateMap.currentTask.workingEvents(), event_list);
+                console.log("stateMap.workingEventList " + JSON.stringify(stateMap.workingEventList));
+                aige.model.clearStateMaps(configMap.objectTypes.task);
+                aige.model.fillStateMaps(configMap.objectTypes.task, stateMap.taskList);
+                  callback(null);
+            }
+        }).fail(function (error) {
+            if (callback) {
+                setTimeout(function () {
+                    callback(error);
+                }, 3000);
+            }
+        });
+    }
+    //
+    // Begin public method /initialize_tasks/
+    /**
+     * No task init has been done yet. Now fetch membership, and fetch events for membership.eventNames that
+     * correspond to "arbeitsdienste"; Afterwards create the taskContainer strucutre to be persisted into 
+     * the task collection for the given year;
+     * 
+     * @param {type} object_type
+     * @param {type} searchParams
+     * @param {type} callback
+     * @returns {none}
+     */
+    initialize_tasks = function (object_type, searchParams, subtasks, callback) {
+        console.log("initialize_tasks ");
+        var ms;
+        var search_ms_promise = stateMap.ajaxCall.search(configMap.objectTypes.membership, searchParams);
+        var search_events_promise = stateMap.ajaxCall.search(configMap.objectTypes.event, searchParams);
+
+        $.when(search_ms_promise, search_events_promise).then(function (membership_list, event_list) {
+            ms = membership_list[0];
+            stateMap.currentTask = make_task_container(ms, event_list, subtasks);
+            console.log(" stateMap.currentTask  " + JSON.stringify(stateMap.currentTask));
+            aige.model.general.createItem(configMap.objectTypes.task, stateMap.currentTask, function (error) {
+                if (error) {
+                    callback(error);
+                } else {
+                    callback(null);
+                }
+            }, searchParams);
+        }).fail(function (error) {
+            if (callback) {
+                setTimeout(function () {
+                    callback(error);
+                }, 3000);
+            }
+        });
+    };
+
+
+
+    // Begin public method /get_working_event_list/
+    // Purpose    : Returns event objects of type "Arbeitsdienst" that match to the working_events
+    // in the task object;
+    // Arguments  : null
+
+    // Returns    : event objects of type "Arbeitsdienst"
+    // Throws     : none
+    //
+    get_working_event_list = function () {
+        return stateMap.workingEventList;
+    }
+    // End public method /get_working_event_list/
+
+
+
+
     // Begin public method /configModule/
     // Purpose    : Adjust configuration of allowed keys
     // Arguments  : A map of settable keys and values
@@ -478,12 +218,12 @@ aige.model.task = (function () {
     // return public methods
     return {
         configModule: configModule,
-        initModule: initModule
-//        createSaison: create_saison,
-//        addSaisonEventsAndMembers: add_saison__members_and_events,
-//        deleteSaisonEventsAndMembers: delete_saison__members_and_events,
-//        updateSaisonEventsForMember: update_saison_events_for_member,
-//        getSaisonEventsByName: get_saison_events_by_name
+        initModule: initModule,
+        initialize_tasks: initialize_tasks,
+        getWorkingEvents: get_working_event_list,
+        findTasks: find_tasks
+
+
     };
     //------------------- END PUBLIC METHODS ---------------------
 }());

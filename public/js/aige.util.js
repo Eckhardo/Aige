@@ -23,7 +23,7 @@ aige.util = (function () {
                 imageError: "<img src='../css/images/iconWarning.gif' alt='Warnung'/>",
             },
             stateMap = {$container: null},
-    jqueryMap = {}, getFormData,
+    jqueryMap = {}, getFormData, arrayIsNullOrEmpty,
             containsItem, getDatepickerOptions, messageConfirm, messageError,
             fetchFormKeys, fetchFormKeyValues, fetchKeys, updatePopup, objectFieldsNotEmpty,
             setConfigMap, setJqueryMap, initModule;
@@ -41,6 +41,18 @@ aige.util = (function () {
     };
     // End DOM method /setJqueryMap/
     //---------------------- END DOM METHODS ---------------------
+    
+    
+    arrayIsNullOrEmpty= function(array){
+        if (!array){
+            return true;
+        }
+        if (array.length===0){
+            return true;
+        }
+        return false;
+        
+    }
 
     getFormData = function ($form) {
         var result = {};
@@ -242,6 +254,7 @@ aige.util = (function () {
         fetchFormKeyValues: fetchFormKeyValues,
         fetchFormKeys: fetchFormKeys,
         objectFieldsNotEmpty: objectFieldsNotEmpty,
+        arrayIsNullOrEmpty:arrayIsNullOrEmpty,
         setConfigMap: setConfigMap,
         initModule: initModule
     };
