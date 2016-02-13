@@ -15,9 +15,8 @@
 
 aige.model = (function () {
 
-    //---------------- BEGIN MODULE SCOPE VARIABLES --------------
+//---------------- BEGIN MODULE SCOPE VARIABLES --------------
     'use strict';
-
     var configMap = {
         settable_map: {
             objectTypes: true
@@ -33,6 +32,7 @@ aige.model = (function () {
         current_saison: null,
         current_member: null,
         current_membership: null,
+        current_bank: null,
         member_list: [],
         event_list: [],
         message_list: [],
@@ -42,7 +42,6 @@ aige.model = (function () {
 
     },
     general, member, membership, event, initModule, configModule, clear_state_maps, fill_state_maps;
-
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //----------------- START UTILITY FUNCTIONS-----------------
@@ -63,10 +62,10 @@ aige.model = (function () {
             stateMap.message_id_map = {};
         } else if (object_type === configMap.objectTypes.task) {
             stateMap.current_task = null;
-
+        } else if (object_type === configMap.objectTypes.bank) {
+            stateMap.current_bank = null;
         }
     };
-
     fill_state_maps = function (object_type, item_list) {
         console.log("fill state map:" + object_type);
         var i = 0, my_member, my_event, my_message;
@@ -97,7 +96,6 @@ aige.model = (function () {
             for (i = 0; i < stateMap.message_list.length; i++) {
                 my_message = stateMap.message_list[i];
                 stateMap.message_id_map[my_message._id] = my_message;
-
             }
         } else if (object_type === configMap.objectTypes.task) {
             for (i = 0; i < item_list.length; i++) {
@@ -106,8 +104,13 @@ aige.model = (function () {
                 break;
             }
 
-        }
+        } else if (object_type === configMap.objectTypes.bank) {
+            for (i = 0; i < item_list.length; i++) {
+                stateMap.current_bank = item_list[i];
+                break;
+            }
 
+        }
     }
     ;
 //----------------- END UTILITY FUNCTIONS-----------------
@@ -132,12 +135,9 @@ aige.model = (function () {
                 get_by_id,
                 get_items,
                 get_current_item;
-
-
         count_db_action = function () {
             return stateMap.count_db_result;
         };
-
         /**
          * 
          * @param {type} object_type - the domain type
@@ -161,7 +161,6 @@ aige.model = (function () {
                 }
             });
         };
-
         /**
          * 
          * @param {type} object_type
@@ -172,7 +171,6 @@ aige.model = (function () {
         search = function (object_type, searchParams, callback) {
 
             var search_promise = stateMap.ajaxCall.search(object_type, searchParams);
-
             search_promise.done(function (item_list) {
                 console.log("search result = " + JSON.stringify(item_list));
                 clear_state_maps(object_type);
@@ -188,7 +186,6 @@ aige.model = (function () {
                 }
             });
         };
-
         /**
          * 
          * @param {type} object_type
@@ -216,13 +213,11 @@ aige.model = (function () {
                         callback(error);
                     }, 3000);
                 });
-
             }).fail(function (error) {
                 setTimeout(function () {
                     callback(error);
                 }, 3000);
             });
-
         };
         /**
          * 
@@ -250,15 +245,12 @@ aige.model = (function () {
                         callback(error);
                     }, 3000);
                 });
-
             }).fail(function (error) {
                 setTimeout(function () {
                     callback(error);
                 }, 3000);
             });
-
         };
-
         /**
          * 
          * @param {type} object_type
@@ -291,10 +283,7 @@ aige.model = (function () {
                     callback(error);
                 }, 3000);
             });
-
-
         };
-
         /**
          * 
          * @param {type} object_type
@@ -328,7 +317,6 @@ aige.model = (function () {
                     callback(error);
                 }, 3000);
             });
-
         };
         /**
          * 
@@ -367,7 +355,6 @@ aige.model = (function () {
                 throw Error("object type not suported: " + object_type);
             }
         };
-
         get_current_item = function (object_type) {
             if (object_type === configMap.objectTypes.member) {
                 return stateMap.current_member;
@@ -377,12 +364,13 @@ aige.model = (function () {
                 return stateMap.current_saison;
             } else if (object_type === configMap.objectTypes.task) {
                 return stateMap.current_task;
-
+            }
+            else if (object_type === configMap.objectTypes.bank) {
+                return stateMap.current_bank;
             } else {
-                throw Error("object type not suported: " + object_type);
+                throw Error("object type not suported: " + JSON.stringify(object_type));
             }
         };
-
         return {findAll: find_all,
             search: search,
             inactivateItem: inactivate_item,
@@ -395,7 +383,6 @@ aige.model = (function () {
             getCurrentItem: get_current_item
         };
     }());
-
     // The model.member object API
     // -------------------
     // This APi comprises membership specific public methods and works closely togehter
@@ -452,16 +439,12 @@ aige.model = (function () {
     membership = (function () {
         var get_unregistered_events,
                 get_unregistered_members, find_inactive_items;
-
-
         get_unregistered_events = function () {
             return stateMap.unreg_membership_events;
         };
         get_unregistered_members = function () {
             return stateMap.unreg_membership_members;
         };
-
-
         /**
          * 
          * @param {type} memberArray
@@ -479,7 +462,6 @@ aige.model = (function () {
                 find_events_promise = stateMap.ajaxCall.findAll(configMap.objectTypes.event);
             }
             find_members_promise = stateMap.ajaxCall.findAll(configMap.objectTypes.member);
-
             $.when(find_events_promise, find_members_promise).then(function (event_list, member_list) {
                 stateMap.unreg_membership_members = [];
                 for (i = 0; i < member_list.length; i++) {
@@ -506,7 +488,6 @@ aige.model = (function () {
                 callback(error);
             });
         };
-
         return {getUnregisteredEvents: get_unregistered_events,
             getUnregisteredMembers: get_unregistered_members,
             findInactiveItems: find_inactive_items
@@ -526,8 +507,6 @@ aige.model = (function () {
     //
     event = (function () {
         var searchByNames, makeEventObject;
-
-
         /**
          * Retrieves events  for a given year and prepares prototyped event objects .
          * 
@@ -540,11 +519,9 @@ aige.model = (function () {
         searchByNames = function (searchParams, eventNames, callback) {
             console.log("namens = " + JSON.stringify(eventNames));
             var search_promise = stateMap.ajaxCall.search(configMap.objectTypes.event, searchParams);
-
             search_promise.done(function (item_list) {
                 clear_state_maps(configMap.objectTypes.event);
                 console.log(JSON.stringify(item_list));
-
                 var eventObjectArray = [];
                 for (var i = 0, len = item_list.length; i < len; i++) {
 
@@ -567,7 +544,6 @@ aige.model = (function () {
                 }
             });
         };
-
         makeEventObject = function (event_map) {
             return new AigeEvent(event_map);
         };
@@ -585,25 +561,19 @@ aige.model = (function () {
                         this.meetingPoint = data.meetingPoint,
                         this.comments = data.comments,
                         this.isActive = data.isActive;
-
             }
 
             return this;
         };
-
-
-        AigeEvent.prototype.displayName = function ( ) {
+        AigeEvent.prototype.displayName = function () {
             return this.name + ' (' + this.startDate + ' : ' + this.startTime + '), ' + this.meetingPoint + ')';
-
         };
-        AigeEvent.prototype.startDateTime = function ( ) {
+        AigeEvent.prototype.startDateTime = function () {
             return  ' (' + this.startDate + ' : ' + this.startTime + ')';
-
         };
         return {searchByNames: searchByNames,
             makeEventObject: makeEventObject};
     }());
-
     //------------------- BEGIN PUBLIC METHODS -------------------
     // Begin public method /configModule/
     // Purpose    : Adjust configuration of allowed keys

@@ -23,7 +23,8 @@ var aige = (function () {
                     membership: "membership",
                     saison: "saison",
                     message: "message",
-                    task:"task"}
+                    task: "task",
+                    bank: "bank"}
             }
     var initModule = function ($container) {
 
@@ -33,15 +34,15 @@ var aige = (function () {
                 {objectTypes: configMap.objectTypes}
         );
         aige.model.initModule();
-        
+
         // saison has an own model ( due to its comlexity);
         aige.model.saison.configModule(
                 {objectTypes: configMap.objectTypes}
         );
         aige.model.saison.initModule();
- 
- 
-      // task has an own model ( due to its comlexity);
+
+
+        // task has an own model ( due to its comlexity);
         aige.model.task.configModule(
                 {objectTypes: configMap.objectTypes}
         );

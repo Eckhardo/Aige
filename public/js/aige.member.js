@@ -19,8 +19,9 @@ aige.member = (function () {
 
 //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     var configMap = {
+      
         member_list_html: String()
-                + '<div id= "memberList" class="aige-admin-member-list" style="height:40em;  overflow:auto;">>'
+                + '<div id= "memberList" class="aige-admin-member-list" style="height:40em;  overflow:auto;">'
                 + '<div id="btnCreateMember" class="buttonCreate"> Neu anlegen</div>'
 
                 + '<table id="tblMemberList" class="tblList">'
@@ -85,7 +86,6 @@ aige.member = (function () {
                 + '</div>'
                 + '</form>'
                 + '</div>',
-       
         imageActive: "<img src='../css/images/boxSelected.gif' alt='Aktiv'/>",
         imageInactive: "<img src='../css/images/boxUnselected.gif' alt='Aktiv'/>",
         settable_map: {
@@ -173,14 +173,19 @@ aige.member = (function () {
                 $menu = $container.find('#cssmenu'),
                 $content = $container.find('.aige-shell-main-content'),
                 $contentWrapper = $container.find("#contentWrapper");
+      
         $contentWrapper.append($(configMap.member_list_html));
         $contentWrapper.append($(configMap.member_form_html));
         var $adminMemberList = $contentWrapper.find('#memberList');
+     
+     
+       
         jqueryMap = {
             $contentWrapper: $contentWrapper,
             $memberMenu: $menu.find('#admin_member'),
             $overlay: $content.find("#overlay-bg"),
             $adminMemberList: $adminMemberList,
+         
             $adminMemberListTableList: $adminMemberList.find('#tblMemberList tbody'),
             $memberFormPopup: $contentWrapper.find('#memberAddEdit'),
             $memberForm: $contentWrapper.find('#memberForm'),
@@ -227,7 +232,8 @@ aige.member = (function () {
                 }
             });
         }
-        jqueryMap.$adminMemberList.fadeIn(1000,"swing");
+     
+      jqueryMap.$adminMemberList.fadeIn(1000, "swing");
     };
 //---------------------- END DOM METHODS ---------------------
 
@@ -238,15 +244,16 @@ aige.member = (function () {
         stateMap.currentAction = configMap.actionTypes.list;
         event.preventDefault();
         jqueryMap.$contentWrapper.children().hide();
+        
         configMap.general_model.findAll(configMap.object_type, memberCallback);
     };
-/**
- * Inactivates the selected member. And in a second step the selected member is deleted also from
- * the corresponding membership of the current year (if it already exists);
- * 
- * @param {type} event
- * @returns {Boolean}
- */
+    /**
+     * Inactivates the selected member. And in a second step the selected member is deleted also from
+     * the corresponding membership of the current year (if it already exists);
+     * 
+     * @param {type} event
+     * @returns {Boolean}
+     */
     onDeleteMember = function (event) {
         stateMap.currentAction = configMap.actionTypes.delete;
         event.preventDefault();
@@ -313,20 +320,20 @@ aige.member = (function () {
         if (!jqueryMap.$memberForm.valid()) {
 
             return false;
-            
+
         }
-        var name =jqueryMap.$memberForm.find('#txtUsername').val();
+        var name = jqueryMap.$memberForm.find('#txtUsername').val();
         var thename = jqueryMap.$memberForm.find('#txtNachname').val();
-        
-        var isAdmin=false;
-                if(name==='Ecki' || name==='Christian' 
-                        || name==='Serafim'|| name==='Claus-Peter'|| name==='Frank'){
-            isAdmin=true;
+
+        var isAdmin = false;
+        if (name === 'Ecki' || name === 'Christian'
+                || name === 'Serafim' || name === 'Claus-Peter' || name === 'Frank') {
+            isAdmin = true;
         }
-       if(thename==='David'){
-           isAdmin=true;
-       }
-       
+        if (thename === 'David') {
+            isAdmin = true;
+        }
+
         var theMember = {
             _id: jqueryMap.$memberForm.find('#txtID').val(),
             firstname: jqueryMap.$memberForm.find('#txtVorname').val(),

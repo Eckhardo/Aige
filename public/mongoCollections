@@ -27,3 +27,8 @@
         "admissionDate" : "2000",
         "isAdmin" : "false",
         "isActive" : "true"
+[
+Bank: "Sparda-Bank Hamburg",
+Inhaber: "Claus-Peter David",
+BIC: "GENODEF1S11",
+IBAN: "DE76 2069 0500 8003 3452 11"}

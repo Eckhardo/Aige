@@ -55,7 +55,7 @@ aige.shell = (function () {
                         + '<li class="last"><a href="#"><span id="treasury">Kassenberichte</span></a></li>'
                         + '</ul>'
                         + '</li>'
-                        + '<li class="last"><a href="#"><span id="">Kontakt</span></a></li>'
+                        + '<li class="last"><a href="#"><span id="contact">Kontakt</span></a></li>'
                         + '</ul>'
                         + '</div>',
                 actionTypes: {create: "create",
@@ -72,7 +72,7 @@ aige.shell = (function () {
 
     },
     jqueryMap = {},
-            copyAnchorMap, setJqueryMap,
+            copyAnchorMap, setJqueryMap, onMenuBank,
             changeAnchorPart, onHashchange,
             onLogin, onLoginFail, onResize, onSignIn, initModule,
             handleMenu, findMenuAction;
@@ -92,11 +92,13 @@ aige.shell = (function () {
                 $nav = $container.find('.aige-shell-main-nav');
         $nav.html(configMap.main_menu);
         var $menu = $nav.find("#cssmenu"),
-                $menuHome = $menu.find("#public_home");
+                $menuHome = $menu.find("#public_home"),
+                $menuBank = $menu.find('#bank');
         jqueryMap = {
             $container: $container,
             $menu: $menu,
             $menuHome: $menuHome,
+            $menuBank: $menuBank,
             $loginWindow: $container.find('.aige-shell-head-acct')
 
         };
@@ -324,6 +326,21 @@ aige.shell = (function () {
                 .text('Bitte anmelden');
     };
     // End Event handler /onClickChat/
+    // 
+    // 
+
+    onMenuBank = function (event) {
+        stateMap.bank=null;
+        console.log("on bank menu");
+            aige.model.general.findAll("bank", function(error){
+              stateMap.bank=aige.model.general.getCurrentItem("bank");
+              
+              console.log("bank "+ JSON.stringify(stateMap.bank));
+            });
+
+        event.preventDefault();
+        return false;
+    };
     //-------------------- END EVENT HANDLERS --------------------
 
     //------------------- BEGIN PUBLIC METHODS -------------------
@@ -404,7 +421,7 @@ aige.shell = (function () {
                 .bind('click', onSignIn);
         $('#cssmenu > ul > li >  a ').on('click', handleMenu);
         $('#cssmenu > ul > li.has-sub > ul > li > a').on('click', 'span', findMenuAction);
-
+        jqueryMap.$menuBank.on('click', onMenuBank);
     };
     // End PUBLIC method /initModule/
 

@@ -19,6 +19,18 @@ aige.home = (function () {
     //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     var
             configMap = {
+                general_info_html: String()
+                        + '<div id ="generalInfo" class="aige-admin-general-info">'
+                        + '<b> 1.Vorsitzender:</b> Serafin Skafidas &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   <b> AIGE Bankverbindung:</b> Sparda-Bank Hamburg, <b>Kto.-Inh.:</b> Claus-Peter David <br>'
+                        + '<b> 2.Vorsitzender:</b> Frank Schneider &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b> BIC:</b> GENODEF1S11, <b>IBAN:</b> DE76 2069 0500 8003 3452 11<br>'
+                        + '<b>Kassenwart:</b> Claus-Peter David <br>'
+                        + '<b>Revisor:</b> <br>'
+                        + '<b>Gewässerwart:</b> Christian Adloff <br>'
+                        + '<b>Schriftführer:</b> Eckhard Kirschning '
+
+                        + '<p><b>Hausleitung:</b> Hr. Bernhard Breuninger, Kampstr. 54 , 25451 Quickborn, Tel.: 04106-652205,Fax: 04106-652205<br>'
+                        + '<b>Hauswart:</b> Herr u. Frau Hauser, Marktstraße 20, 25451 Quickborn, Tel.: 0160-5354080</p>'
+                        + '</div>',
                 messages_list_html: String()
                         + '<div id="messageList" class="aige-admin-member-list">'
                         + '<div id="messageGroup" class="buttonCreate">'
@@ -107,11 +119,10 @@ aige.home = (function () {
         var validator = $("#messageForm").validate({
             focusCleanup: true,
             rules: {
-             
                 name: {required: true},
                 messageShort: {required: true, minlength: 2, maxlength: 20},
                 dateTime: {required: true},
-                message:  {required: true}
+                message: {required: true}
             },
             errorClass: "errormessage",
             errorElement: "b",
@@ -130,12 +141,13 @@ aige.home = (function () {
                 $menu = $container.find('#cssmenu'),
                 $content = $container.find('.aige-shell-main-content'),
                 $contentWrapper = $container.find("#contentWrapper");
-        $contentWrapper.
+        $contentWrapper.append($(configMap.general_info_html)).
                 append($(configMap.messages_list_html)).
                 append($(configMap.messages_form_html));
         var $messageGroup = $contentWrapper.find('#messageGroup');
         var $messageList = $contentWrapper.find('#messageList');
-        var $messageFormPopup = $contentWrapper.find('#messageAddEdit')
+        var $messageFormPopup = $contentWrapper.find('#messageAddEdit');
+        var $adminGeneralInfo = $contentWrapper.find('#generalInfo');
         jqueryMap = {
             $content: $content,
             $contentWrapper: $contentWrapper,
@@ -143,6 +155,7 @@ aige.home = (function () {
             $overlay: $content.find("#overlay-bg"),
             $messageGroup: $messageGroup,
             $messageList: $messageList,
+            $adminGeneralInfo: $adminGeneralInfo,
             $messageListTableList: $messageList.find('#tblMessageList tbody'),
             $messageFormPopup: $messageFormPopup,
             $messageForm: $contentWrapper.find('#messageForm'),
@@ -172,11 +185,11 @@ aige.home = (function () {
                     + myMessage.name + "</td><td>"
                     + myMessage.shortMessage + "</td><td>"
                     + myMessage.dateTime + "</td><td>"
-                    + myMessage.message.substr(0,70) + (myMessage.message.length>70? ' ......' :'')+ "</td>"
+                    + myMessage.message.substr(0, 70) + (myMessage.message.length > 70 ? ' ......' : '') + "</td>"
                     + "</tr>");
 
         }
-
+        jqueryMap.$adminGeneralInfo.fadeIn(1000, "swing");
         jqueryMap.$messageList.fadeIn(1000, "swing");
     }
 
@@ -262,7 +275,7 @@ aige.home = (function () {
             message: $(this).find('#txtMessageLong').val(),
         };
         formParams = aige.util.getFormData($(this));
- 
+
         stateMap.saveIsEdit ?
                 configMap.general_model.updateItem(configMap.object_type, messageMap, messageCallback, searchParams) :
                 configMap.general_model.createItem(configMap.object_type, messageMap, messageCallback, searchParams);
@@ -287,19 +300,19 @@ aige.home = (function () {
         stateMap.selectedMessageId = $(this).attr("alt").replace("Edit", "");
         stateMap.currentMessage = configMap.general_model.getById(configMap.object_type, stateMap.selectedMessageId);
         console.log(" stateMap.currentMessage: " + JSON.stringify(stateMap.currentMessage));
-   
 
-            jqueryMap.$messageForm.find("#txtMessageID").val(stateMap.currentMessage._id);
-            jqueryMap.$messageForm.find("#txtMessageSender").val(stateMap.currentMessage.name);
-            jqueryMap.$messageForm.find("#txtMessageShort").val(stateMap.currentMessage.shortMessage).prop("disabled", true);
-            jqueryMap.$messageForm.find("#txtMessageDateTime").val(stateMap.currentMessage.dateTime);
-            jqueryMap.$messageForm.find("#txtMessageLong").val(stateMap.currentMessage.message).focus();
-            jqueryMap.$overlay.fadeIn();
-            jqueryMap.$messageFormPopup.fadeIn();
 
-            aige.util.updatePopup(jqueryMap.$messageFormPopup);
-            event.preventDefault();
-       
+        jqueryMap.$messageForm.find("#txtMessageID").val(stateMap.currentMessage._id);
+        jqueryMap.$messageForm.find("#txtMessageSender").val(stateMap.currentMessage.name);
+        jqueryMap.$messageForm.find("#txtMessageShort").val(stateMap.currentMessage.shortMessage).prop("disabled", true);
+        jqueryMap.$messageForm.find("#txtMessageDateTime").val(stateMap.currentMessage.dateTime);
+        jqueryMap.$messageForm.find("#txtMessageLong").val(stateMap.currentMessage.message).focus();
+        jqueryMap.$overlay.fadeIn();
+        jqueryMap.$messageFormPopup.fadeIn();
+
+        aige.util.updatePopup(jqueryMap.$messageFormPopup);
+        event.preventDefault();
+
         return false;
     };
     // End event handler /onEditMessage/  
@@ -389,7 +402,7 @@ aige.home = (function () {
         jqueryMap.$homeMenu.on('click', onMenuHome);
         $.gevent.subscribe(jqueryMap.$contentWrapper, 'show_messages', onMenuHome);
         jqueryMap.$messageGroup.on("change", "#txtMessageGroupYear", onChangeMessageGroup);
-         jqueryMap.$messageList.on("click", "#btnEditMessage", onEditMessage);
+        jqueryMap.$messageList.on("click", "#btnEditMessage", onEditMessage);
         jqueryMap.$messageList.on("click", "#buttonCreateMessage", onCreateMessage);
         jqueryMap.$messageForm.on('submit', onSaveMessage);
         jqueryMap.$messageForm.on("click", "#buttonCloseMessage", closePopup);
