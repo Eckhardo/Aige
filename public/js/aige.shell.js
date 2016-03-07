@@ -286,7 +286,7 @@ aige.shell = (function () {
     onSignIn = function (event) {
 
         if (!stateMap.user_is_logged_in) {
-            var user_name = prompt('Bitte anmelden', 'Ebi');
+            var user_name = prompt('Bitte anmelden', '');
             if (user_name === 'Ecki') {
                 user_name = 'Niemand';
             }
