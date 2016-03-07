@@ -249,12 +249,12 @@ aige.saison = (function () {
                 }
                 tblHeaders = tblHeaders + "</tr>";
                 jqueryMap.$adminCurrentSaisonTableHeader.append($(tblHeaders));
-                
-                 bodyArray[++j] = " <tr><td></td><td></td>";
+
+                bodyArray[++j] = " <tr><td></td><td></td>";
                 for (i = 0; i < stateMap.currentEvents.length; i++) {
-                     bodyArray[++j]  ='<td  class="smallFont">' + stateMap.currentEvents[i].startDateTime() + '</td>';
+                    bodyArray[++j] = '<td  class="smallFont">' + stateMap.currentEvents[i].startDateTime() + '</td>';
                 }
-                 bodyArray[++j] = " </tr>";
+                bodyArray[++j] = " </tr>";
                 // construct table body
                 for (i = 0; i < membersLength; i++) {
                     myMember = memberList[i];
@@ -315,6 +315,7 @@ aige.saison = (function () {
         stateMap.currentYear = new Date().getFullYear().toString();
         stateMap.selectedYear = stateMap.currentYear;
         jqueryMap.$saisonGroup.find("#txtSaisonGroupYear").val(stateMap.currentYear);
+        jqueryMap.$overlay.fadeIn();
 
         configMap.general_model.search(configMap.object_type, {searchParams: {year: stateMap.currentYear}}, saisonCallback);
 
@@ -461,11 +462,11 @@ aige.saison = (function () {
         var memberName = stateMap.currentSaisonMemberName,
                 clone = (JSON.parse(JSON.stringify(stateMap.checkboxNameValuePairMap))),
                 formKeyValues = aige.util.fetchFormKeyValues($(this));
-
+        jqueryMap.$overlay.fadeIn();
         configMap.saison_model.updateSaisonEventsForMember(stateMap.currentSaison._id, stateMap.currentSaison.year, memberName, formKeyValues, clone, saisonCallback);
 
         jqueryMap.$saisonEditFormPopup.fadeOut();
-        jqueryMap.$overlay.fadeOut();
+
         event.preventDefault();
     };
     /**
@@ -483,7 +484,7 @@ aige.saison = (function () {
         stateMap.currentAction = configMap.actionTypes.list;
         stateMap.selectedYear = jqueryMap.$saisonGroup.find('#txtSaisonGroupYear').val();
         var searchParams = {searchParams: {year: stateMap.selectedYear}};
-
+        jqueryMap.$overlay.fadeIn();
         configMap.general_model.search("membership", searchParams, function (error) {
             if (error) {
                 aige.util.messageError($("<span>Die Suche  war nicht erfolgreich</span>"));
@@ -531,7 +532,7 @@ aige.saison = (function () {
         error ?
                 aige.util.messageError($message) :
                 aige.util.messageConfirm($message);
-
+        jqueryMap.$overlay.fadeOut();
         listSaison();
     };
 

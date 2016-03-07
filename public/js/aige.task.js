@@ -26,24 +26,29 @@ aige.task = (function () {
             configMap = {
                 tasks_list_html: String()
                         + '<div id="taskList" class="aige-admin-member-list">'
+
                         + '<div id="taskGroup" class="buttonCreate">'
                         + '<form id = "taskGroupForm">'
-                        + '<input type = "hidden" id = "txtTaskGroupID"/>'
-                        + '<label for = "txtTaskGroupYear"> Jahr: </label>'
-                        + '<select id="txtTaskGroupYear" name="taskGroupYear">'
+                        + '<label for = "taskGroupYear"> Jahr: </label>'
+                        + '<select id="taskGroupYear" name="taskGroupYear">'
                         + '<option>2016</option>'
                         + '<option>2017</option>'
                         + '<option>2018</option>'
                         + '<option>2019</option>'
                         + '</select>'
+                        + '<span id="workingEventGroupSpan">'
+                        + '<label for = "workingEventGroup"> Arbeitsdienst: </label>'
+                        + '<select id="workingEventGroup" name="workingEventGroup">'
+                        + '</select></span>'
                         + '</form>'
-                        + '</div>'
+
                         + '<div id="buttonCreateTask" class="buttonCreate">Arbeitsdienst neu anlegen</div>'
                         + '<h3 id="headerTask" style="text-align:center;"></h3>'
+                        + '</div>'
                         + '<table id="tblTaskList" class="tblList">'
                         + '<thead><tr><th></th><th></th>'
-                        + '<th>Jahr</th><th>Dienst</th><th>Tätigkeiten</th><th>Koordinator</th>'
-                        + '<th>Datum</th><th>Uhrzeit</th><th>Treffpunkt</th><th>Ausführung flexibel</th><th>Bemerkungen</th>'
+                        + '<th>Arbeitsdienst</th><th>Details</th><th>Teilnehmer</th><th>Koordinator</th>'
+                        + '<th>Startzeit (Flexibel)</th><th>Treffpunkt</th><th>Bemerkungen</th>'
 
                         + '</tr></thead><tbody></tbody>'
                         + '</table>'
@@ -55,43 +60,48 @@ aige.task = (function () {
                         + '<ul>'
                         + '<input type = "hidden" id = "txtTaskID"/ name="id">'
                         + '<li>'
-                        + '<label for = "txtTaskYear"> Jahr: </label>'
-                        + '<input type = "text" id = "txtTaskYear" name ="year" readonly="readonly" />'
+                        + '<label for = "txtWorkingTask"> Ereignis: </label>'
+                        + '<input type = "text" id = "txtWorkingTask" name ="workingTask" readonly="readonly" />'
                         + '</li><li>'
 
                         + '</li>&nbsp;<li>'
-                        + '<label for = "txtTaskType"> Dienst: </label>'
+                        + '<label for = "txtTaskType"> Arbeitsdienst: </label>'
                         + '<select id="txtTaskType" name="type">'
                         + '</select></li><li>'
-                        + '<label for = "txtTaskAddNew"> Neue Eintrag: </label>'
+                        + '<label for = "txtTaskAddNew">&nbsp; </label>'
                         + ' <input type="text" id = "txtTaskAddNew"  name="addTask" value="">'
                         + '<img src="../css/images/download.png" alt="Save"  id="btnAddTask"  class="btnEdit"/>'
                         + '</li><li>'
 
                         + '</li>&nbsp;<li>'
-                        + '<label for = "txtTaskDetails"> Tätigkeiten: </label>'
+                        + '<label for = "txtTaskDetails"> Details: </label>'
                         + '<textarea id = "txtTaskDetails" name="details"'
-                        + 'style=" height: 100px;"></textarea >'
+                        + 'style=" height: 50px; width: 333px;"></textarea >'
+                        + '</li><li>'
+                        + '<label for = "txtTaskMemberPicklist"> Teilnehmer: </label>'
+                        + '<select id="txtTaskMemberPicklist" name="memberPicklist" multiple="multiple">'
+                        + '</select>'
                         + '</li><li>'
                         + '<label for = "txtTaskCoordinator"> Koordinator: </label>'
-                        + '<input type = "text" id="txtTaskCoordinator" name="coordinator">'
-                        + '</li><li>'
-                        + '<label for = "txtTaskStartDate"> Datum: </label>'
+                        + '<select id="txtTaskCoordinator" name="coordinator">'
+                        + '</select></li><li>'
+                        + '<label for = "txtTaskStartDate"> Startdatum: </label>'
                         + '<input type = "text" id = "txtTaskStartDate"  name="startDate" />'
                         + '</li><li>'
                         + '<label for = "txtTaskStartTime"> Startzeit: </label>'
                         + '<input type = "text" id = "txtTaskStartTime" name="startTime" class="time" />'
                         + '</li><li>'
-                        + '<label for = "txtTaskMeetingPoint"> Treffpunkt: </label>'
-                        + '<input type = "text" id = "txtTaskMeetingPoint"name="meetingPoint" />'
-                        + '</li><li>'
 
                         + '<label for = "txtTaskSelforganized"> Ausf. flexibel: </label>'
                         + '<input type = "checkbox" id="txtTaskSelforganized" name="selforganized"/>'
                         + '</li><li>'
+                        + '<label for = "txtTaskMeetingPoint"> Treffpunkt: </label>'
+                        + '<input type = "text" id = "txtTaskMeetingPoint"name="meetingPoint" />'
+                        + '</li><li>'
+
                         + '<label for = "txtTaskComments"> Anmerkungen: </label>'
                         + '<textarea id = "txtTaskComments" name="comments"'
-                        + 'style=" height: 100px;"></textarea >'
+                        + 'style=" height: 50px;  width: 333px;"></textarea >'
                         + ' </li></ul>'
                         + '<div>'
                         + '<input type = "submit" value = "Speichern" id = "addEditTaskSave">'
@@ -114,40 +124,132 @@ aige.task = (function () {
     stateMap = {
         $shellcontainer: null,
         selectedTaskId: -1,
-        taskCollection: ["Gräben", "Wasserpflanzen", "Hütte/Geräteschuppen", "Uferbereich/Wasser", "Uferbereich/Land", "Wege/Haider Eck", "Rohrkolbenbereich ", "Stege/Plattformen"],
+        subTaskCollection: ["Gräben", "Wasserpflanzen", "Hütte/Geräteschuppen", "Uferbereich/Wasser", "Uferbereich/Land", "Wege/Haider Eck", "Rohrkolbenbereich ", "Stege/Plattformen"],
+        workingEventCollection: [],
+        coordinatorCollection: [],
         currentTask: null,
+        currentWorkingTask: null,
+        currentSubTask: null,
         currentMember: null,
         currentYear: null,
         selectedYear: null,
+        selectedWorkingEventName: null,
         currentDateTime: null,
         saveIsEdit: true,
-        currentAction: ""
+        currentAction: "",
+        pickedMembers: [],
     },
-    jqueryMap = {}, listTasks, onMenuTask, onChangeTaskGroup, onEditTask, onDeleteTask, onCreateTask, onSaveTask,
+            jqueryMap = {}, onMemberPicklistChange, listTasks, onMenuTask, onChangeTaskGroup, onChangeWorkingEventGroup, onEditTask, onDeleteTask, onCreateTask, onSaveTask,
             onAddTask, onLoginSuccess, taskCallback, setJqueryMap, configModule, initModule;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
     //------------------- BEGIN UTILITY METHODS ------------------
+    // Begin Utility method /clearStateMap/
+    function clearStateMap() {
+        stateMap.currentWorkingTask = null;
+        stateMap.currentTask = null;
+        stateMap.currentSubTask = null;
+        stateMap.selectedWorkingEventName = null;
+        stateMap.pickedMembers = [];
+    }
+// End Utility method /clearStateMap/
+
+// Begin Utility method /addItemsToPicklist/
+    function addItemsToPicklist(picklist, items, isRegistered) {
+
+        for (var i = 0; i < items.length; i++) {
+            var param = {value: items[i],
+                label: items[i],
+                selected: isRegistered};
+            picklist.pickList("insert", param);
+        }
+    }
+// End Utility method /addItemsToPicklist/
+
+// Start Utility method /closePopup/
     function closePopup() {
         console.log("closePopup");
         jqueryMap.$taskFormValidator.resetForm();
         jqueryMap.$taskFormPopup.fadeOut();
         jqueryMap.$overlay.fadeOut();
     }
+// End Utility method /closePopup/
+    /**
+     * Adds a subtask to the subTaskCollection and fills option list widget with 
+     * subtasks as option.
+     * @param {type} subtask
+     * @returns {undefined}
+     */
+    function fillSubtaskOptionList(subtask) {
 
-    function fillOptionList(task) {
+        console.log("fil subtask option list");
 
-        if (task) {
-            stateMap.taskCollection.push(task);
+        if (subtask) {
+            stateMap.subTaskCollection.push(subtask);
         }
-        jqueryMap.$taskForm.find("#txtTaskType").get(0).options.length = 0;
-        jqueryMap.$taskForm.find("#txtTaskType").get(0).options[0] = new Option("Wähle Dienst", "-1");
-        $.each(stateMap.taskCollection, function (index, item) {
-            jqueryMap.$taskForm.find("#txtTaskType").get(0).options[ index] = new Option(item, item);
+        var $textTaskType = jqueryMap.$taskForm.find("#txtTaskType");
+        $textTaskType.get(0).options.length = 0;
+        $textTaskType.get(0).options[0] = new Option("Wähle Dienst", "-1");
+        $.each(stateMap.subTaskCollection, function (index, item) {
+            $textTaskType.get(0).options[ index] = new Option(item, item);
         });
-        jqueryMap.$taskForm.find('#txtTaskType option:last-child').prop('selected', true);
+        if (subtask) {
+            $textTaskType.find('option:last-child').prop('selected', true);
+        }
         ;
     }
+    /**
+     * Adds a subtask to the subTaskCollection and fills option list widget with 
+     * subtasks as option.
+     * @param {type} workingTask
+     * @returns {working task} - sth like Arbeitdienst 1 || Arbeitsdienst 2
+     */
+    function fillWorkingEventOptionList(workingEventNames, selectedWorkingEventName) {
+        stateMap.workingEventCollection = [];
+
+        workingEventNames.forEach(function (item, index) {
+            stateMap.workingEventCollection.push(item);
+        });
+
+        jqueryMap.$workingEventGroup.get(0).options.length = 0;
+        jqueryMap.$workingEventGroup.get(0).options[0] = new Option("Wähle Arbeitsdienst", "-1");
+        $.each(stateMap.workingEventCollection, function (index, item) {
+            jqueryMap.$workingEventGroup.get(0).options[ index] = new Option(item, item);
+        });
+
+        if (selectedWorkingEventName) {
+            jqueryMap.$workingEventGroup.val(selectedWorkingEventName);
+            stateMap.selectedWorkingEventName = selectedWorkingEventName;
+        } else {
+            jqueryMap.$workingEventGroup.find('option:first-child').prop('selected', true);
+            stateMap.selectedWorkingEventName = jqueryMap.$workingEventGroup.val();
+        }
+    }
+
+    /**
+     * Adds a subtask to the subTaskCollection and fills option list widget with 
+     * subtasks as option.
+     * @param {type} workingTask
+     * @returns {working task} - sth like Arbeitdienst 1 || Arbeitsdienst 2
+     */
+    function fillCoordinatorOptionList(memberNames) {
+        console.log("memberNames: " + JSON.stringify(memberNames));
+        stateMap.coordinatorCollection = [];
+
+        memberNames.forEach(function (item, index) {
+            stateMap.coordinatorCollection.push(item);
+        });
+
+        var $txtTaskCoordinator = jqueryMap.$taskForm.find("#txtTaskCoordinator");
+        $txtTaskCoordinator.get(0).options.length = 0;
+        $txtTaskCoordinator.get(0).options[0] = new Option("Wähle Koordinator", "-1");
+        $.each(stateMap.coordinatorCollection, function (index, item) {
+            $txtTaskCoordinator.get(0).options[ index] = new Option(item, item);
+        });
+        $txtTaskCoordinator.find('option:last-child').prop('selected', true);
+        ;
+    }
+
 
     function validateTaskForm() {
 
@@ -180,26 +282,36 @@ aige.task = (function () {
         $contentWrapper.
                 append($(configMap.tasks_list_html)).
                 append($(configMap.tasks_form_html));
-        var $taskGroup = $contentWrapper.find('#taskGroup');
         var $taskList = $contentWrapper.find('#taskList');
+        var $taskGroupForm = $taskList.find('#taskGroupForm');
+        var $taskGroupYear = $taskGroupForm.find('#taskGroupYear');
+        var $workingEventGroupSpan = $taskGroupForm.find('#workingEventGroupSpan');
+        var $workingEventGroup = $taskGroupForm.find('#workingEventGroup');
+
         var $taskFormPopup = $contentWrapper.find('#taskAddEdit');
         $taskFormPopup.find("#txtTaskStartDate").datepicker(aige.util.getDatepickerOptions());
         $taskFormPopup.find('#txtTaskStartTime').timepicker({'scrollDefault': 'ß7:00', 'timeFormat': 'H:i'});
         var $taskForm = $taskFormPopup.find('#taskForm');
-
+        var $memberPicklist = $taskForm.find("#txtTaskMemberPicklist").pickList({
+            "sourceListLabel": "Verfügbar",
+            "targetListLabel": "Ausgewählt"
+        });
         jqueryMap = {
             $content: $content,
             $contentWrapper: $contentWrapper,
             $taskMenu: $menu.find('#admin_tasks'),
             $overlay: $content.find("#overlay-bg"),
-            $taskGroup: $taskGroup,
+            $taskGroupYear: $taskGroupYear,
+            $workingEventGroupSpan: $workingEventGroupSpan,
+            $workingEventGroup: $workingEventGroup,
             $taskList: $taskList,
             $taskListTableList: $taskList.find('#tblTaskList tbody'),
             $taskFormPopup: $taskFormPopup,
             $taskForm: $taskForm,
+            $memberPicklist: $memberPicklist,
             $taskFormValidator: validateTaskForm()
         };
-        fillOptionList();
+
     };
     // End DOM method /setJqueryMap/
 
@@ -207,41 +319,54 @@ aige.task = (function () {
     // Begin DOM method /listTasks/
 
     listTasks = function () {
-        console.log(" list tasks");
-        var myWorkingTask, mySubTask, workingTasksLength;
-        jqueryMap.$taskListTableList.html("");
 
 
+        var mySubTask;
         stateMap.currentTask = configMap.general_model.getCurrentItem(configMap.object_type);
-        if (stateMap.currentTask) {
-            workingTasksLength = stateMap.currentTask.workingTasks.length;
-
-            for (var i = 0; i < workingTasksLength; i++) {
-
-                myWorkingTask = stateMap.currentTask.workingTasks[i];
-  console.log(" myWorkingTask" + JSON.stringify(myWorkingTask));
-                for (var i = 0; i < myWorkingTask.member_subtasks.length; i++) {
-
-
-                    jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + mySubTask.type
-                            + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
-                            + mySubTask.type + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
-                            + mySubTask.year + "</td><td>"
-                            + mySubTask.type + "</td><td>"
-                            + mySubTask.details + "</td><td>"
-                            + mySubTask.coordinator + "</td><td>"
-                            + mySubTask.startDate + "</td><td>"
-                            + mySubTask.startTime + "</td><td>"
-
-                            + mySubTask.meetingPoint + "</td><td>"
-                            + (mySubTask.selforganized ? configMap.imageActive : configMap.imageInactive)
-                            + "</td><td>"
-                            + mySubTask.comments + "</td>"
-                            + "</tr>");
-                }
-            }
+        console.log("the current task :" + JSON.stringify(stateMap.currentTask));
+        if (!stateMap.currentTask) {
+            jqueryMap.$workingEventGroupSpan.hide();
+            jqueryMap.$taskList.find("#buttonCreateTask").hide();
+            jqueryMap.$taskList.find("#headerTask").text("Keine Arbeitsdienstdaten vorhanden für   " + stateMap.selectedYear);
+            jqueryMap.$taskList.fadeIn(1000, "swing");
+            return;
         }
 
+        jqueryMap.$taskList.find("#buttonCreateTask").show();
+        var workingEventNames = configMap.task_model.fetchWorkingEventNames();
+        fillWorkingEventOptionList(workingEventNames, stateMap.selectedWorkingEventName);
+        jqueryMap.$taskListTableList.html("");
+        jqueryMap.$workingEventGroupSpan.show();
+        stateMap.currentWorkingTask = stateMap.currentTask.getWorkingTaskByName(stateMap.selectedWorkingEventName);
+
+        if (aige.util.arrayIsNullOrEmpty(stateMap.currentWorkingTask.member_subtasks)) {
+            jqueryMap.$taskList.find("#headerTask").text("Bisher wurde kein Arbeitsdienst angelegt für   " + stateMap.selectedYear);
+            jqueryMap.$taskList.fadeIn(1000, "swing");
+            return;
+        }
+        for (var i = 0; i < stateMap.currentWorkingTask.member_subtasks.length; i++) {
+            mySubTask = stateMap.currentWorkingTask.member_subtasks[i];
+            console.log(" current sub task :" + JSON.stringify(mySubTask));
+
+
+            jqueryMap.$taskListTableList.append("<tr>" + "<td><img src='../css/images/edit.png' alt='Edit" + i
+                    + "' id='btnEditTask'  class='btnEdit'/></td><td><img src='../css/images/dustbin.png' alt='Delete"
+                    + i + "'  id='btnDeleteTask'  class='btnDelete'/></td><td>"
+
+                    + mySubTask.type + "</td><td>"
+                    + mySubTask.details + "</td><td>"
+                    + mySubTask.members + "</td><td>"
+                    + mySubTask.coordinator + "</td><td>"
+                    + mySubTask.startDate + ","
+                    + mySubTask.startTime + " &nbsp; "
+                    + (mySubTask.selforganized ? configMap.imageActive : configMap.imageInactive)
+                    + " </td><td>"
+                    + mySubTask.meetingPoint + "</td><td>"
+                    + mySubTask.comments + "</td>"
+                    + "</tr>");
+        }
+        var workingEvent = configMap.task_model.getWorkingEvent(stateMap.selectedWorkingEventName);
+        jqueryMap.$taskList.find("#headerTask").text("Liste der Einzelarbeitsdienste für: " + workingEvent.displayName());
         jqueryMap.$taskList.fadeIn(1000, "swing");
     }
 
@@ -252,14 +377,18 @@ aige.task = (function () {
     //------------------- BEGIN EVENT HANDLERS -------------------
     // Begin event handler /onMenuHome/
     onMenuTask = function (event) {
-        console.log("on menu task");
-
+        console.log("on menu task")
+        stateMap.currentAction = configMap.actionTypes.list;
+        clearStateMap();
+        jqueryMap.$taskGroupYear.fadeIn();
+        jqueryMap.$contentWrapper.children().hide();
+        fillSubtaskOptionList();
         stateMap.currentYear = new Date().getFullYear().toString();
         stateMap.selectedYear = stateMap.currentYear;
         stateMap.currentAction = configMap.actionTypes.list;
-        jqueryMap.$contentWrapper.children().hide();
-        jqueryMap.$taskGroup.fadeIn();
-        $("#txtTaskGroupYear").val(stateMap.currentYear);
+        jqueryMap.$overlay.fadeIn();
+
+        jqueryMap.$taskGroupYear.val(stateMap.currentYear);
         var searchParams = {searchParams: {year: stateMap.currentYear}};
 
         configMap.task_model.findTasks(configMap.object_type, searchParams, function (error) {
@@ -267,10 +396,15 @@ aige.task = (function () {
                 aige.util.messageConfirm($("<span>Fehler bei der Arbeitsdienstsuche" + JSON.stringify(error) + "</span>"));
                 return false;
             }
-            stateMap.taskList = configMap.general_model.getCurrentItem(configMap.object_type);
-            if (aige.util.arrayIsNullOrEmpty(stateMap.taskList)) {
-                aige.util.messageConfirm($("<span>Keine Einträge vorhanden.... Bitte einen Moment gedulden ... Struktur wird aufgebaut</span>"));
-                configMap.task_model.initialize_tasks(configMap.object_type, searchParams, stateMap.taskCollection, taskCallback);
+            stateMap.currentTask = configMap.general_model.getCurrentItem(configMap.object_type);
+            console.log("current Task=" + JSON.stringify(stateMap.currentTask));
+            if (!stateMap.currentTask) {
+                stateMap.currentAction = configMap.actionTypes.initialize;
+                aige.util.messageConfirm($("<span>Keine Einträge vorhanden.... Bitte einen Moment gedulden ... die Grundstruktur für Arbeitsdienste wird aufgebaut</span>"));
+                setTimeout(function () {
+                    configMap.task_model.initializeTask(configMap.object_type, searchParams, stateMap.subTaskCollection, taskCallback);
+
+                }, 3000);
             } else {
                 taskCallback();
             }
@@ -283,46 +417,69 @@ aige.task = (function () {
 
 
     // Begin event handler /onLoginSuccess/  
+    /**
+     * 
+     * @param {type} event
+     * @param {type} login_user
+     * @returns {Boolean}
+     */
     onLoginSuccess = function (event, login_user) {
         stateMap.currentMember = login_user;
-
         return false;
-
     }
     // End event handler /onLoginSuccess/   
 
-
     // Begin event handler /onAddTask/  
+    /**
+     *  adds a hand-written sub task tot he subtas option list
+     * @param {type} event
+     * @returns {undefined}
+     */
     onAddTask = function (event) {
-        var task = jqueryMap.$taskForm.find('#txtTaskAddNew').val();
-        console.log("task: " + task);
-
-        console.log(JSON.stringify(stateMap.taskCollection));
-        fillOptionList(task);
-        jqueryMap.$taskForm.find('#txtTaskAddNew').val("");
-    }
+        var $subtask = jqueryMap.$taskForm.find('#txtTaskAddNew');
+        fillSubtaskOptionList($subtask.val());
+        $subtask.val("");
+        return false;
+    };
     // End event handler /onAddTask/   
+
 
 
     // Begin event handler /onCreateTask/  
     onCreateTask = function (event) {
-        if (stateMap.currentMember.isAdmin) {
-            stateMap.currentAction = configMap.actionTypes.create;
-            stateMap.saveIsEdit = false;
-            jqueryMap.$taskFormValidator.resetForm();
-            jqueryMap.$taskForm[0].reset();
-            jqueryMap.$taskFormPopup.find("#headerTaskFormPopup").text("Neuen Arbeitsdienst anlegen");
-            jqueryMap.$taskFormPopup.fadeIn();
+        var workingTaskMembers;
+
+        stateMap.currentAction = configMap.actionTypes.create;
+        stateMap.saveIsEdit = false;
+        jqueryMap.$taskFormValidator.resetForm();
+        jqueryMap.$taskForm[0].reset();
+        stateMap.pickedMembers = [];
+        jqueryMap.$taskFormPopup.find("#headerTaskFormPopup").text("Neuen Arbeitsdienst anlegen");
+
+        jqueryMap.$taskForm.find("#txtWorkingTask").val(stateMap.selectedWorkingEventName);
+        jqueryMap.$taskForm.find("#txtTaskType").children().prop("disabled", false);
+        jqueryMap.$taskForm.find("#txtTaskAddNew").show().val("Neuen Diensttyp anlegen");
+        jqueryMap.$taskForm.find("#btnAddTask").hide();
+        jqueryMap.$taskGroupYear.val(stateMap.selectedYear);
+        jqueryMap.$taskFormPopup.find('.pickList_sourceList li').remove();
+        jqueryMap.$taskFormPopup.find('.pickList_targetList li').remove();
+        jqueryMap.$taskFormPopup.find('.pickList_targetList,.pickList_sourceList').css("background-color", "#fff");
+
+        workingTaskMembers = stateMap.currentTask.getWorkingTaskMembers(stateMap.selectedWorkingEventName);
+        aige.util.updatePopup(jqueryMap.$taskFormPopup);
+        jqueryMap.$taskFormPopup.fadeIn();
+        jqueryMap.$overlay.fadeIn();
+
+        setTimeout(function () {
+            addItemsToPicklist(jqueryMap.$memberPicklist, workingTaskMembers, false);
+            fillCoordinatorOptionList(workingTaskMembers);
+
+        }, 1000);
 
 
-            jqueryMap.$taskForm.find("#txtTaskType").children().prop("disabled", false);
-            jqueryMap.$taskForm.find("#txtTaskYear").val($('#txtTaskGroupYear').val());
-            jqueryMap.$overlay.fadeIn();
-            aige.util.updatePopup(jqueryMap.$taskFormPopup);
-        } else {
-            var $message = $("<span> Du hast keine Berechtigung</span>")
-            aige.util.messageConfirm($message);
-        }
+
+
+
         return false;
     };
     // End event handler /onCreateTask/  
@@ -336,35 +493,40 @@ aige.task = (function () {
      */
     onSaveTask = function (event) {
 
-        var taskMap, formParams,
-                searchParams = {searchParams: {year: stateMap.selectedYear}};
+        var _id, _workingTask, _year, _subtask, sub_task_list = [];
+        if (stateMap.currentMember.isAdmin) {
+            if (!$(this).valid()) {
+                return false;
+            }
+            _id = stateMap.currentTask._id;
+            _year = stateMap.selectedYear;
+            _workingTask = $(this).find('#txtWorkingTask').val();
+            _subtask = {
+                type: $(this).find('#txtTaskType').val(),
+                details: $(this).find('#txtTaskDetails').val(),
+                members: stateMap.pickedMembers,
+                coordinator: $(this).find('#txtTaskCoordinator').val(),
+                startDate: $(this).find('#txtTaskStartDate').val(),
+                startTime: $(this).find('#txtTaskStartTime').val(),
+                meetingPoint: $(this).find('#txtTaskMeetingPoint').val(),
+                selforganized: $(this).find('#txtTaskSelforganized').is(":checked"),
+                comments: $(this).find('#txtTaskComments').val()
+            };
 
-        if (!$(this).valid()) {
-            return false;
+
+
+            stateMap.saveIsEdit ?
+                    configMap.task_model.updateSubTask(configMap.object_type, _id, _year, _workingTask, _subtask, taskCallback)
+                    :
+                    sub_task_list.push(_subtask);
+            configMap.task_model.insertSubTask(configMap.object_type, _id, _year, _workingTask, sub_task_list, taskCallback);
+            jqueryMap.$taskFormPopup.fadeOut();
+
+            event.preventDefault();
+        } else {
+            var $message = $("<span> Du hast keine Berechtigung</span>");
+            aige.util.messageConfirm($message);
         }
-
-        taskMap = {
-            _id: $(this).find('#txtTaskID').val(),
-            year: stateMap.selectedYear,
-            type: $(this).find('#txtTaskType').val(),
-            details: $(this).find('#txtTaskDetails').val(),
-            coordinator: $(this).find('#txtTaskCoordinator').val(),
-            startDate: $(this).find('#txtTaskStartDate').val(),
-            startTime: $(this).find('#txtTaskStartTime').val(),
-            meetingPoint: $(this).find('#txtTaskMeetingPoint').val(),
-            selforganized: $(this).find('#txtTaskSelforganized').is(":checked"),
-            comments: $(this).find('#txtTaskComments').val()
-        };
-        formParams = aige.util.getFormData($(this));
-        console.log("formParams2=" + JSON.stringify(formParams));
-        console.log("formParams2=" + JSON.stringify(taskMap));
-
-        stateMap.saveIsEdit ?
-                configMap.general_model.updateItem(configMap.object_type, taskMap, taskCallback, searchParams) :
-                configMap.general_model.createItem(configMap.object_type, taskMap, taskCallback, searchParams);
-        jqueryMap.$taskFormPopup.fadeOut();
-        jqueryMap.$overlay.fadeOut();
-        event.preventDefault();
     };
     // End event handler /onSaveTask/  
 
@@ -373,17 +535,20 @@ aige.task = (function () {
     // Begin event handler /onDeleteTask/  
 
     onDeleteTask = function (event) {
+        var _id, _workingTask, _year, _subtask;
         if (stateMap.currentMember.isAdmin) {
-            var searchParams = {searchParams: {year: stateMap.selectedYear}};
+            _id = stateMap.currentTask._id;
+            _year = stateMap.selectedYear;
+            _workingTask = stateMap.selectedWorkingEventName;
             stateMap.currentAction = configMap.actionTypes.delete;
             stateMap.selectedTaskId = $(this).attr("alt").replace("Delete", "");
-            stateMap.currentTask = configMap.general_model.getById(configMap.object_type, stateMap.selectedTaskId);
-            console.log(" stateMap.currentTask: " + JSON.stringify(stateMap.currentTask));
+            stateMap.currentSubTask = stateMap.currentTask.getSubTaskById(stateMap.selectedWorkingEventName, stateMap.selectedTaskId);
+            console.log(" stateMap.currentSubTask: " + JSON.stringify(stateMap.currentSubTask));
 
-            if (!confirm("Willst Du wirklich [" + stateMap.currentTask.shortTask + "] löschen?")) {
+            if (!confirm("Willst Du wirklich [" + stateMap.currentSubTask.type + "] löschen?")) {
                 return false;
             }
-            configMap.general_model.deleteItem(configMap.object_type, stateMap.currentTask._id, taskCallback, searchParams);
+            configMap.task_model.removeSubTask(configMap.object_type, _id, _year, _workingTask, stateMap.currentSubTask, taskCallback)
             event.preventDefault();
         } else {
             var $message = $("<span> Du hast keine Berechtigung</span>")
@@ -402,34 +567,54 @@ aige.task = (function () {
      * @returns {Boolean}
      */
     onEditTask = function (event) {
-        if (stateMap.currentMember.isAdmin) {
-            stateMap.currentAction = configMap.actionTypes.update;
-            stateMap.saveIsEdit = true;
-            stateMap.selectedTaskId = $(this).attr("alt").replace("Edit", "");
-            stateMap.currentTask = configMap.general_model.getById(configMap.object_type, stateMap.selectedTaskId);
-            console.log(" stateMap.currentTask: " + JSON.stringify(stateMap.currentTask));
+        var inactiveMembers, activeMembers, workingTaskMembers;
+        stateMap.currentAction = configMap.actionTypes.update;
+        stateMap.pickedMembers = [];
+        stateMap.saveIsEdit = true;
+        stateMap.selectedTaskId = $(this).attr("alt").replace("Edit", "");
+        stateMap.currentSubTask = stateMap.currentTask.getSubTaskById(stateMap.selectedWorkingEventName, stateMap.selectedTaskId);
+        inactiveMembers = stateMap.currentTask.getUnregisteredSubTaskMembers(stateMap.selectedWorkingEventName, stateMap.selectedTaskId);
+        activeMembers = stateMap.currentTask.getRegisteredSubTaskMembers(stateMap.selectedWorkingEventName, stateMap.selectedTaskId);
+        workingTaskMembers = stateMap.currentTask.getWorkingTaskMembers(stateMap.selectedWorkingEventName);
 
-            jqueryMap.$taskForm.find("#txtTaskID").val(stateMap.currentTask._id);
-            jqueryMap.$taskForm.find("#txtTaskYear").val(stateMap.currentTask.year);
-            jqueryMap.$taskForm.find("#txtTaskType  option:not(:selected)").prop("disabled", true);
-            jqueryMap.$taskForm.find("#txtTaskDetails").val(stateMap.currentTask.details).focus();
-            jqueryMap.$taskForm.find("#txtTaskCoordinator").val(stateMap.currentTask.coordinator);
-            jqueryMap.$taskForm.find("#txtTaskStartDate").val(stateMap.currentTask.startDate);
-            jqueryMap.$taskForm.find("#txtTaskStartTime").val(stateMap.currentTask.startTime);
-            jqueryMap.$taskForm.find("#txtTaskMeetingPoint").val(stateMap.currentTask.meetingPoint);
+        console.log(" inactiveMembers: " + JSON.stringify(inactiveMembers));
+        console.log(" activeMembers: " + JSON.stringify(activeMembers));
 
-            jqueryMap.$taskForm.find("#txtTaskSelforganized").prop("checked", stateMap.currentTask.selforganized);
-            jqueryMap.$taskForm.find("#txtTaskComments").val(stateMap.currentTask.comments);
-            jqueryMap.$overlay.fadeIn();
-            jqueryMap.$taskFormPopup.fadeIn();
 
-            aige.util.updatePopup(jqueryMap.$taskFormPopup);
-            event.preventDefault();
-        } else {
-            var $message = $("<span> Es ist nur erlaubt, eigene Nachrichten zu ändern.</span>")
-            aige.util.messageConfirm($message);
-        }
+        jqueryMap.$taskForm.find("#txtTaskID").val(stateMap.selectedTaskId);
+        jqueryMap.$taskForm.find("#txtWorkingTask").val(stateMap.currentWorkingTask.name);
+        fillSubtaskOptionList(null);
+        jqueryMap.$taskForm.find("#txtTaskType").val(stateMap.currentSubTask.type);
+        jqueryMap.$taskForm.find("#txtTaskType  option:not(:selected)").prop("disabled", true);
+        jqueryMap.$taskForm.find("#txtTaskAddNew").hide();
+        jqueryMap.$taskForm.find("#btnAddTask").hide();
+        jqueryMap.$taskForm.find("#txtTaskDetails").val(stateMap.currentSubTask.details);
+        fillCoordinatorOptionList(workingTaskMembers);
+        jqueryMap.$taskForm.find("#txtTaskCoordinator").val(stateMap.currentSubTask.coordinator);
+        jqueryMap.$taskForm.find("#txtTaskStartDate").val(stateMap.currentSubTask.startDate);
+        jqueryMap.$taskForm.find("#txtTaskStartTime").val(stateMap.currentSubTask.startTime);
+        jqueryMap.$taskForm.find("#txtTaskMeetingPoint").val(stateMap.currentSubTask.meetingPoint);
+
+        jqueryMap.$taskForm.find("#txtTaskSelforganized").prop("checked", stateMap.currentSubTask.selforganized);
+        jqueryMap.$taskForm.find("#txtTaskComments").val(stateMap.currentSubTask.comments);
+        jqueryMap.$taskFormPopup.find('.pickList_sourceList li').remove();
+        jqueryMap.$taskFormPopup.find('.pickList_targetList li').remove();
+        jqueryMap.$taskFormPopup.find('.pickList_targetList,.pickList_sourceList').css("background-color", "#fff");
+
+
+        aige.util.updatePopup(jqueryMap.$taskFormPopup);
+        jqueryMap.$taskFormPopup.fadeIn();
+        jqueryMap.$overlay.fadeIn();
+
+        setTimeout(function () {
+            addItemsToPicklist(jqueryMap.$memberPicklist, inactiveMembers, false);
+            addItemsToPicklist(jqueryMap.$memberPicklist, activeMembers, true);
+
+        }, 1000);
+        aige.util.updatePopup(jqueryMap.$taskFormPopup);
+        event.preventDefault();
         return false;
+
     };
     // End event handler /onEditTask/  
 
@@ -441,14 +626,65 @@ aige.task = (function () {
      * @returns {false}
      */
     onChangeTaskGroup = function (event) {
+        jqueryMap.$taskListTableList.html("");
+        clearStateMap();
         stateMap.currentAction = configMap.actionTypes.list;
-        stateMap.selectedYear = $('#txtTaskGroupYear').val();
+        stateMap.selectedYear = jqueryMap.$taskGroupYear.val();
+        console.log("selected year: " + JSON.stringify(stateMap.selectedYear));
         var searchParams = {searchParams: {year: stateMap.selectedYear}};
-        configMap.general_model.search(configMap.object_type, searchParams, taskCallback);
+          jqueryMap.$overlay.fadeIn();
+        configMap.task_model.findTasks(configMap.object_type, searchParams, taskCallback);
         event.preventDefault();
         return false;
     };
     // End event handler /onChangeTaskGroup/  
+
+
+    // Begin event handler /onChangeWorkingEventGroup/  
+    /**
+     * Is fired if option list with working events as options representing an event group is changed.
+     * 
+     * @param {type} event
+     * @returns {false}
+     */
+
+    onChangeWorkingEventGroup = function (event) {
+        jqueryMap.$taskListTableList.html("");
+
+        stateMap.currentWorkingTask = null;
+        stateMap.selectedWorkingEventName = null;
+        stateMap.currentAction = configMap.actionTypes.list;
+        stateMap.currentAction = configMap.actionTypes.list;
+        stateMap.selectedWorkingEventName = jqueryMap.$workingEventGroup.val();
+        console.log("selected event: " + JSON.stringify(stateMap.selectedWorkingEventName));
+        listTasks();
+        aige.util.messageConfirm($("<span>" + stateMap.selectedWorkingEventName + " ausgewählt.</span>"));
+        event.preventDefault();
+        return false;
+    };
+
+
+    // End event handler /onChangeWorkingEventGroup/  
+
+
+    // Begin event handler /onMemberPicklistChange/  
+    /**
+     * Is fired if picklist entries are moved..
+     * 
+     * @param {type} event
+     * @returns {false}
+     */
+    onMemberPicklistChange = function (event) {
+
+        stateMap.pickedMembers = [];
+        var items = jqueryMap.$memberPicklist.closest("li").find('.pickList_targetList').children('li');
+        items.each(function () {
+            stateMap.pickedMembers.push($(this).data('value'));
+        });
+        //    console.log(event.type.replace("picklist_", "") + " [" + obj.type + ": " + stateMap.selectedMembers.join(", ") + "]");
+    };
+
+
     //-------------------- END EVENT HANDLERS --------------------
 
 
@@ -457,8 +693,13 @@ aige.task = (function () {
     //------------------- BEGIN CALLBACK METHODS -------------------
 
     taskCallback = function (error) {
+
         var $message;
         switch (stateMap.currentAction) {
+            case configMap.actionTypes.initialize:
+                $message = error ?
+                        $("<span>Der Aufbau der Grundstruktur für Arbeitsdienste war nicht erfolgreich " + JSON.stringify(error) + " </span>") : $("<span>Das Ergebnis der Aufbau der Grundstruktur für Arbeitsdienste:</span>");
+                break;
             case configMap.actionTypes.list:
                 $message = error ?
                         $("<span>Die Suche  war nicht erfolgreich</span>") : $("<span>Das Ergebnis der Arbeitsdienstsuche:</span>");
@@ -479,7 +720,7 @@ aige.task = (function () {
         error ?
                 aige.util.messageError($message) :
                 aige.util.messageConfirm($message);
-
+        jqueryMap.$overlay.fadeOut();
         listTasks();
     };
 
@@ -517,13 +758,20 @@ aige.task = (function () {
         setJqueryMap();
         jqueryMap.$taskMenu.on('click', onMenuTask);
 
-        jqueryMap.$taskGroup.on("change", "#txtTaskGroupYear", onChangeTaskGroup);
+        jqueryMap.$taskGroupYear.on("change", onChangeTaskGroup);
+        jqueryMap.$workingEventGroup.on("change", onChangeWorkingEventGroup);
         jqueryMap.$taskList.on("click", "#btnDeleteTask", onDeleteTask);
         jqueryMap.$taskList.on("click", "#btnEditTask", onEditTask);
+        stateMap.saveIsEdit = false;
 
         jqueryMap.$taskList.on("click", "#buttonCreateTask", onCreateTask);
         jqueryMap.$taskForm.on('submit', onSaveTask);
         jqueryMap.$taskForm.on("click", "#btnAddTask", onAddTask);
+        jqueryMap.$taskForm.on("focus", "#txtTaskAddNew", function () {
+            jqueryMap.$taskForm.find("#btnAddTask").fadeIn(1000, "swing");
+            jqueryMap.$taskForm.find("#txtTaskAddNew").val("");
+        });
+        jqueryMap.$memberPicklist.bind("picklist_onchange", onMemberPicklistChange);
         jqueryMap.$taskForm.on("click", "#buttonCloseTask", closePopup);
         jqueryMap.$contentWrapper.on("click", "#overlay-bg", closePopup);
         $.gevent.subscribe(jqueryMap.$contentWrapper, 'login-success', onLoginSuccess);

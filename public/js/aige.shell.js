@@ -61,7 +61,8 @@ aige.shell = (function () {
                 actionTypes: {create: "create",
                     update: "update",
                     delete: "delete",
-                    list: "list"}
+                    list: "list",
+                    initialize:"initialize" }
 
             },
     stateMap = {
@@ -285,7 +286,7 @@ aige.shell = (function () {
     onSignIn = function (event) {
 
         if (!stateMap.user_is_logged_in) {
-            var user_name = prompt('Bitte anmelden', '');
+            var user_name = prompt('Bitte anmelden', 'Ebi');
             if (user_name === 'Ecki') {
                 user_name = 'Niemand';
             }
@@ -391,12 +392,12 @@ aige.shell = (function () {
         });
         aige.saison.initModule(jqueryMap.$container);
 
-//        aige.task.configModule({
-//            general_model: aige.model.general,
-//            task_model: aige.model.task,
-//            actionTypes: configMap.actionTypes
-//        });
-//        aige.task.initModule(jqueryMap.$container);
+        aige.task.configModule({
+            general_model: aige.model.general,
+            task_model: aige.model.task,
+            actionTypes: configMap.actionTypes
+        });
+        aige.task.initModule(jqueryMap.$container);
         // configure and initialize utility module 
         aige.util.initModule(jqueryMap.$container);
 

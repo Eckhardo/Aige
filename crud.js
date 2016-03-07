@@ -168,6 +168,7 @@ pushAll = function (obj_type, find_map, set_map, callback) {
    
         collection.update(find_map, {$pushAll: set_map}, options_map, function (error, push_all_count) {
             if (errors) {
+                   console.log("crud errors." + JSON.stringify(errors));
                 callback(error);
             }
             callback({push_all_count: push_all_count});

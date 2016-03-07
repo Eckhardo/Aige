@@ -240,7 +240,6 @@ aige.membership = (function () {
                 bodyArray[++j] = "</td><td>";
 
                 stateMap.currentEvents.forEach(function (event, i) {
-                    console.log("counter= " + i);
                     bodyArray[++j] = "<br>" + event.displayName() + "</br>";
                 });
 
@@ -257,7 +256,7 @@ aige.membership = (function () {
         } else {
             jqueryMap.$adminMembershipList.find('#buttonCreateMembership').show();
         }
-        jqueryMap.$adminMembershipList.fadeIn(1000,"swing");
+        jqueryMap.$adminMembershipList.fadeIn(1000, "swing");
     };
 //---------------------- END DOM METHODS ---------------------
 
@@ -271,16 +270,15 @@ aige.membership = (function () {
     onMenuMembership = function (event) {
         var searchParams;
         stateMap.currentMembership = null;
-        stateMap.pickedEvents = null;
-        stateMap.pickedMembers = null;
+        stateMap.pickedEvents = [];
+        stateMap.pickedMembers = [];
         stateMap.currentYear = new Date().getFullYear().toString();
         stateMap.selectedYear = stateMap.currentYear;
         stateMap.currentAction = configMap.actionTypes.list;
         jqueryMap.$contentWrapper.children().hide();
         jqueryMap.$membershipGroup.fadeIn();
-        $("#txtMembershipGroupYear").val(stateMap.currentYear);
+        jqueryMap.$membershipGroup.find("#txtMembershipGroupYear").val(stateMap.currentYear);
         searchParams = {searchParams: {year: stateMap.currentYear}};
-        console.log(" onMenuMembership" + JSON.stringify(searchParams));
         configMap.general_model.search(configMap.object_type, searchParams, membershipCallback);
         event.preventDefault();
     };
@@ -294,8 +292,8 @@ aige.membership = (function () {
     onChangeMembershipGroupEvent = function (event) {
 
         stateMap.currentMembership = null;
-        stateMap.pickedEvents = null;
-        stateMap.pickedMembers = null;
+        stateMap.pickedEvents = [];
+         stateMap.pickedMembers = [];
         stateMap.currentAction = configMap.actionTypes.list;
         stateMap.selectedYear = jqueryMap.$membershipGroup.find('#txtMembershipGroupYear').val();
         console.log("selected year= " + JSON.stringify(stateMap.selectedYear));
@@ -460,6 +458,14 @@ aige.membership = (function () {
         });
         //    console.log(event.type.replace("picklist_", "") + " [" + obj.type + ": " + stateMap.selectedMembers.join(", ") + "]");
     };
+
+    // Begin event handler /onMemberPicklistChange/  
+    /**
+     * Is fired if picklist entries are moved..
+     * 
+     * @param {type} event
+     * @returns {false}
+     */
     onMemberPicklistChange = function (event) {
 
         stateMap.pickedMembers = [];
@@ -469,7 +475,7 @@ aige.membership = (function () {
         });
         //    console.log(event.type.replace("picklist_", "") + " [" + obj.type + ": " + stateMap.selectedMembers.join(", ") + "]");
     };
-
+    // End event handler /onMemberPicklistChange/  
 
     onLoginSuccess = function (event, login_user) {
         stateMap.currentMember = login_user;

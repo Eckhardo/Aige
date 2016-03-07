@@ -317,6 +317,64 @@ configRoutes = function (app, server) {
             );
         }
     });
+    /**
+     *  Add members and member vents to the saison
+     */
+    app.post('/:object_type/updateSubtask', function (request, response) {
+        var empy_result_map = {"add_count": 0}, object_type, id, workingTask, subTaskList, find_map, set_map;
+        object_type = request.params.object_type;
+        console.log("ROUTE updateSubtask...." + object_type);
+
+        object_type = request.params.object_type;
+        id = makeMongoId(request.body.id);
+        workingTask = request.body.workingTask;
+        subTaskList = request.body.subTaskList;
+        console.log("ROUTE subTaskList...." + JSON.stringify(subTaskList));
+        if (id === null || workingTask === null) {
+            response.json(empy_result_map);
+        } else {
+            find_map = {'_id': id, 'workingTasks.name': workingTask};
+            set_map = {'workingTasks.$.member_subtasks': subTaskList};
+            crud.update(
+                    object_type,
+                    find_map,
+                    set_map,
+                    function (result_map) {
+                        response.json(result_map);
+                    }
+            );
+        }
+    });
+
+    /**
+     *  Add members and member vents to the saison
+     */
+    app.post('/:object_type/addSubtask', function (request, response) {
+        var empy_result_map = {"add_count": 0}, object_type, id, workingTask, subTaskList, find_map, set_map;
+        object_type = request.params.object_type;
+        console.log("ROUTE addSubtask...." + object_type);
+
+        object_type = request.params.object_type;
+        id = makeMongoId(request.body.id);
+        workingTask = request.body.workingTask;
+        subTaskList = request.body.subTaskList;
+        console.log("ROUTE subTaskList...." + JSON.stringify(subTaskList));
+        if (id === null || workingTask === null) {
+            response.json(empy_result_map);
+        } else {
+            find_map = {'_id': id, 'workingTasks.name': workingTask};
+            set_map = {'workingTasks.$.member_subtasks': subTaskList};
+            crud.pushAll(
+                    object_type,
+                    find_map,
+                    set_map,
+                    function (result_map) {
+
+                        response.json(result_map);
+                    }
+            );
+        }
+    });
     app.get('/sign_s3', function (req, res) {
         var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
         var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
@@ -336,7 +394,7 @@ configRoutes = function (app, server) {
                 return res.send('Error with S3')
             }
             ;
- console.log("url = "+ JSON.stringify('https://s3.amazonaws.com/' + S3_BUCKET + '/' + req.query.file_name));
+            console.log("url = " + JSON.stringify('https://s3.amazonaws.com/' + S3_BUCKET + '/' + req.query.file_name));
             res.json({
                 signed_request: data,
                 url: 'https://s3.amazonaws.com/' + S3_BUCKET + '/' + req.query.file_name

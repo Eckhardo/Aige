@@ -566,7 +566,7 @@ aige.model = (function () {
             return this;
         };
         AigeEvent.prototype.displayName = function () {
-            return this.name + ' (' + this.startDate + ' : ' + this.startTime + '), ' + this.meetingPoint + ')';
+            return this.name + ' (' + this.startDate + ' : ' + this.startTime + ', ' + this.meetingPoint + ')';
         };
         AigeEvent.prototype.startDateTime = function () {
             return  ' (' + this.startDate + ' : ' + this.startTime + ')';
