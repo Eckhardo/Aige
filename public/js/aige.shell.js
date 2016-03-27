@@ -58,24 +58,28 @@ aige.shell = (function () {
                         + '<li class="last"><a href="#"><span id="contact">Kontakt</span></a></li>'
                         + '</ul>'
                         + '</div>',
-                actionTypes: {create: "create",
-                    update: "update",
-                    delete: "delete",
-                    list: "list",
-                    initialize:"initialize" }
+                settable_map: {
+                    general_model: true,
+                    member_model: true,
+                    actionTypes: true,
+                    isFakeData: true
+                },
+                general_model: null,
+                member_model: null,
+                actionTypes: null,
+                isFakeData: null
 
             },
     stateMap = {
         $container: null,
         anchor_map: {},
         currentUser: null,
-        user_is_logged_in: false
-
+        user_is_logged_in: false,
     },
-    jqueryMap = {},
+            jqueryMap = {},
             copyAnchorMap, setJqueryMap, onMenuBank,
             changeAnchorPart, onHashchange,
-            onLogin, onLoginFail, onResize, onSignIn, initModule,
+            onLogin, onLoginFail, onResize, onSignIn, configModule, initModule,
             handleMenu, findMenuAction;
     //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -284,9 +288,10 @@ aige.shell = (function () {
 
     // Begin Event handler /onSignIn/
     onSignIn = function (event) {
+        console.log("On sign in ");
 
         if (!stateMap.user_is_logged_in) {
-            var user_name = prompt('Bitte anmelden', '');
+            var user_name = prompt('Bitte anmelden', 'Ebi');
             if (user_name === 'Ecki') {
                 user_name = 'Niemand';
             }
@@ -296,7 +301,7 @@ aige.shell = (function () {
             }
             var searchParams = {searchParams: {username: user_name}};
             console.log("user name input=" + user_name);
-            aige.model.member.login(searchParams);
+            configMap.member_model.login(searchParams);
             jqueryMap.$loginWindow.text('... Anfrage wird bearbeitet ...');
         } else {
             aige.model.member.logout();
@@ -331,13 +336,13 @@ aige.shell = (function () {
     // 
 
     onMenuBank = function (event) {
-        stateMap.bank=null;
+        stateMap.bank = null;
         console.log("on bank menu");
-            aige.model.general.findAll("bank", function(error){
-              stateMap.bank=aige.model.general.getCurrentItem("bank");
-              
-              console.log("bank "+ JSON.stringify(stateMap.bank));
-            });
+        aige.model.general.findAll("bank", function (error) {
+            stateMap.bank = aige.model.general.getCurrentItem("bank");
+
+            console.log("bank " + JSON.stringify(stateMap.bank));
+        });
 
         event.preventDefault();
         return false;
@@ -345,6 +350,27 @@ aige.shell = (function () {
     //-------------------- END EVENT HANDLERS --------------------
 
     //------------------- BEGIN PUBLIC METHODS -------------------
+    // Begin public method /configModule/
+    // Purpose    : Adjust configuration of allowed keys
+    // Arguments  : A map of settable keys and values
+    //   * color_name - color to use
+    // Settings   :
+    //   * configMap.settable_map declares allowed keys
+    // Returns    : true
+    // Throws     : none
+    //
+    configModule = function (input_map) {
+        
+        console.log("shell config module: " + JSON.stringify(input_map));
+
+        aige.util.setConfigMap({
+            input_map: input_map,
+            settable_map: configMap.settable_map,
+            config_map: configMap
+        });
+        return true;
+    };
+    //
     // Begin Public method /initModule/
     initModule = function ($container) {
         // load HTML and map jQuery collections
@@ -355,57 +381,112 @@ aige.shell = (function () {
         $.uriAnchor.configModule({
             schema_map: configMap.anchor_schema_map
         });
+        if (!configMap.isFakeData) {
+            console.log("Load production data");
+            aige.home.configModule({
+                general_model: aige.model.general,
+                actionTypes: configMap.actionTypes
+            });
+            aige.home.initModule(jqueryMap.$container);
+            // configure and initialize feature module member
+            aige.member.configModule({
+                general_model: aige.model.general,
+                member_model: aige.model.member,
+                actionTypes: configMap.actionTypes
+            });
+            aige.member.initModule(jqueryMap.$container);
+            // configure and initialize feature module event
+            aige.event.configModule({
+                general_model: aige.model.general,
+                event_model: aige.model.event,
+                actionTypes: configMap.actionTypes
+            });
+            aige.event.initModule(jqueryMap.$container);
+            // configure and initialize feature module membership
+            aige.membership.configModule({
+                general_model: aige.model.general,
+                membership_model: aige.model.membership,
+                event_model: aige.model.event,
+                actionTypes: configMap.actionTypes
+            });
+            aige.membership.initModule(jqueryMap.$container);
+            // configure and initialize feature module saison
+            aige.saison.configModule({
+                general_model: aige.model.general,
+                saison_model: aige.model.saison,
+                event_model: aige.model.event,
+                actionTypes: configMap.actionTypes
+            });
+            aige.saison.initModule(jqueryMap.$container);
 
-        aige.home.configModule({
-            general_model: aige.model.general,
-            actionTypes: configMap.actionTypes
-        });
-        aige.home.initModule(jqueryMap.$container);
-        // configure and initialize feature module member
-        aige.member.configModule({
-            general_model: aige.model.general,
-            member_model: aige.model.member,
-            actionTypes: configMap.actionTypes
-        });
-        aige.member.initModule(jqueryMap.$container);
-        // configure and initialize feature module event
-        aige.event.configModule({
-            general_model: aige.model.general,
-            event_model: aige.model.event,
-            actionTypes: configMap.actionTypes
-        });
-        aige.event.initModule(jqueryMap.$container);
-        // configure and initialize feature module membership
-        aige.membership.configModule({
-            general_model: aige.model.general,
-            membership_model: aige.model.membership,
-            event_model: aige.model.event,
-            actionTypes: configMap.actionTypes
-        });
-        aige.membership.initModule(jqueryMap.$container);
-        // configure and initialize feature module saison
-        aige.saison.configModule({
-            general_model: aige.model.general,
-            saison_model: aige.model.saison,
-            event_model: aige.model.event,
-            actionTypes: configMap.actionTypes
-        });
-        aige.saison.initModule(jqueryMap.$container);
+            aige.task.configModule({
+                general_model: aige.model.general,
+                task_model: aige.model.task,
+                actionTypes: configMap.actionTypes
+            });
+            aige.task.initModule(jqueryMap.$container);
+            // configure and initialize utility module 
+            aige.util.initModule(jqueryMap.$container);
 
-        aige.task.configModule({
-            general_model: aige.model.general,
-            task_model: aige.model.task,
-            actionTypes: configMap.actionTypes
-        });
-        aige.task.initModule(jqueryMap.$container);
-        // configure and initialize utility module 
-        aige.util.initModule(jqueryMap.$container);
+            aige.images.configModule({
+                general_model: aige.model.general,
+                actionTypes: configMap.actionTypes
+            });
+            aige.images.initModule(jqueryMap.$container);
+        } else {
 
-        aige.images.configModule({
-            general_model: aige.model.general,
-            actionTypes: configMap.actionTypes
-        });
-        aige.images.initModule(jqueryMap.$container);
+            console.log("Load fake data");
+            aige.home.configModule({
+                general_model: aige.model.fake.general,
+                actionTypes: configMap.actionTypes
+            });
+            aige.home.initModule(jqueryMap.$container);
+            // configure and initialize feature module member
+            aige.member.configModule({
+                general_model: aige.model.fake.general,
+                member_model: aige.model.fake.member,
+                actionTypes: configMap.actionTypes
+            });
+            aige.member.initModule(jqueryMap.$container);
+            // configure and initialize feature module event
+            aige.event.configModule({
+                general_model: aige.model.fake.general,
+                event_model: aige.model.fake.event,
+                actionTypes: configMap.actionTypes
+            });
+            aige.event.initModule(jqueryMap.$container);
+            // configure and initialize feature module membership
+            aige.membership.configModule({
+                general_model: aige.model.fake.general,
+                membership_model: aige.model.fake.membership,
+                event_model: aige.model.fake.event,
+                actionTypes: configMap.actionTypes
+            });
+            aige.membership.initModule(jqueryMap.$container);
+            // configure and initialize feature module saison
+            aige.saison.configModule({
+                general_model: aige.model.fake.general,
+                saison_model: aige.model.fake.saison,
+                event_model: aige.model.fake.event,
+                actionTypes: configMap.actionTypes
+            });
+            aige.saison.initModule(jqueryMap.$container);
+
+            aige.task.configModule({
+                general_model: aige.model.fake.general,
+                task_model: aige.model.fake.task,
+                actionTypes: configMap.actionTypes
+            });
+            aige.task.initModule(jqueryMap.$container);
+            // configure and initialize utility module 
+            aige.util.initModule(jqueryMap.$container);
+
+            aige.images.configModule({
+                general_model: aige.model.fake.general,
+                actionTypes: configMap.actionTypes
+            });
+            aige.images.initModule(jqueryMap.$container);
+        }
         // Handle URI anchor change events.
         // This is done /after/ all feature modules are configured
         // and initialized, otherwise they will not be ready to handle
@@ -426,7 +507,7 @@ aige.shell = (function () {
     };
     // End PUBLIC method /initModule/
 
-    return {initModule: initModule};
+    return {configModule: configModule, initModule: initModule};
     //------------------- END PUBLIC METHODS ---------------------
 }());
 

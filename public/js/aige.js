@@ -16,7 +16,7 @@
 var aige = (function () {
     'use strict';
     var configMap =
-            {
+            {isFakeData: false,
                 objectTypes: {
                     member: "member",
                     event: "event",
@@ -24,30 +24,66 @@ var aige = (function () {
                     saison: "saison",
                     message: "message",
                     task: "task",
-                    bank: "bank"}
+                    bank: "bank"},
+                actionTypes: {create: "create",
+                    update: "update",
+                    delete: "delete",
+                    list: "list",
+                    initialize: "initialize"}
             }
     var initModule = function ($container) {
 
-        aige.data.initModule();
+        if (configMap.isFakeData) {
+            console.log("aige.js is fake data ");
+            aige.data.fake.initModule();
+            aige.model.fake.configModule(
+                    {objectTypes: configMap.objectTypes}
+            );
+            aige.model.fake.initModule();
+            // saison has an own model ( due to its comlexity);
+            aige.model.saison.configModule(
+                    {objectTypes: configMap.objectTypes}
+            );
+            aige.model.saison.initModule();
+            // task has an own model ( due to its comlexity);
+            aige.model.task.configModule(
+                    {objectTypes: configMap.objectTypes}
+            );
+            aige.model.task.initModule();
+            aige.shell.configModule({
+                general_model: aige.model.fake.general,
+                member_model: aige.model.fake.member,
+                actionTypes: configMap.actionTypes,
+                isFakeData: configMap.isFakeData
+            });
+            aige.shell.initModule($container);
+        } else {
+            
+            console.log("aige.js - real data");
+            aige.data.initModule();
+            aige.model.configModule(
+                    {objectTypes: configMap.objectTypes}
+            );
+            aige.model.initModule();
+            // saison has an own model ( due to its comlexity);
+            aige.model.saison.configModule(
+                    {objectTypes: configMap.objectTypes}
+            );
+            aige.model.saison.initModule();
+            // task has an own model ( due to its comlexity);
+            aige.model.task.configModule(
+                    {objectTypes: configMap.objectTypes}
+            );
+            aige.model.task.initModule();
+            aige.shell.configModule({
+                general_model: aige.model.general,
+                member_model: aige.model.member,
+                actionTypes: configMap.actionTypes,
+                isFakeData: configMap.isFakeData
+            });
+            aige.shell.initModule($container);
+        }
 
-        aige.model.configModule(
-                {objectTypes: configMap.objectTypes}
-        );
-        aige.model.initModule();
-
-        // saison has an own model ( due to its comlexity);
-        aige.model.saison.configModule(
-                {objectTypes: configMap.objectTypes}
-        );
-        aige.model.saison.initModule();
-
-
-        // task has an own model ( due to its comlexity);
-        aige.model.task.configModule(
-                {objectTypes: configMap.objectTypes}
-        );
-        aige.model.task.initModule();
-        aige.shell.initModule($container);
 
     };
 

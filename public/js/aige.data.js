@@ -34,6 +34,7 @@ aige.data = (function () {
             $.ajax('/' + object_type + '/findAll', {
                 type: 'POST',
                 success: function (result) {
+                             console.log("DATA: search  = " + JSON.stringify(result));
                     promise.resolve(result);
                 },
                 timeout: 10000,
@@ -52,6 +53,7 @@ aige.data = (function () {
             $.ajax('/' + object_type + '/search', {
                 type: 'POST',
                 success: function (result) {
+                          console.log("DATA: search  = " + JSON.stringify(result));
                     promise.resolve(result);
                 },
                 timeout: 10000,

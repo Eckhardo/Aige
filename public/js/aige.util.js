@@ -203,6 +203,9 @@ aige.util = (function () {
         for (key_name in input_map) {
             if (input_map.hasOwnProperty(key_name)) {
                 if (settable_map.hasOwnProperty(key_name)) {
+                    
+                    console.log("ADD key =" +JSON.stringify(input_map[key_name]));
+                    
 
 
                     config_map[key_name] = input_map[key_name];

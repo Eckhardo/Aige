@@ -25,7 +25,7 @@ aige.task = (function () {
     var
             configMap = {
                 tasks_list_html: String()
-                        + '<div id="taskList" class="aige-admin-member-list">'
+                        + '<div id="taskList" class="aige-admin-member-list" style=" heigth:40em; overflow:auto;">'
 
                         + '<div id="taskGroup" class="buttonCreate">'
                         + '<form id = "taskGroupForm">'
