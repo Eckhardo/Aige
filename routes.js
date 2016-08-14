@@ -376,10 +376,11 @@ configRoutes = function (app, server) {
         }
     });
     app.get('/sign_s3', function (req, res) {
-        var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-        var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
-        var S3_BUCKET = process.env.S3_BUCKET;
+        var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || 'AKIAI3TXRY2BTPL5NP6A';
+        var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY || '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';
+        var S3_BUCKET = process.env.S3_BUCKET || 'aige-file-upload';
         console.log(AWS_ACCESS_KEY + ", " + AWS_SECRET_KEY + "," + S3_BUCKET);
+       
         aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
         var s3 = new aws.S3();
         var s3_params = {
@@ -389,9 +390,11 @@ configRoutes = function (app, server) {
             ContentType: req.query.file_type,
             ACL: 'public-read'
         };
+          console.log(JSON.stringify("s3_params: "+ s3_params));
         s3.getSignedUrl('putObject', s3_params, function (err, data) {
             if (err) {
-                return res.send('Error with S3')
+                console.log('Error with S3');
+                return res.send('Error with S3');
             }
             ;
             console.log("url = " + JSON.stringify('https://s3.amazonaws.com/' + S3_BUCKET + '/' + req.query.file_name));
@@ -407,7 +410,7 @@ configRoutes = function (app, server) {
         var avatar_url = req.body.avatar_url;
         var result = {username: username, full_name: full_name, avatar_url: avatar_url};
         console.log("submit_form" + JSON.stringify(result));
-        response.json(result);
+        res.json(result);
     });
 // end configRoutes
 };

@@ -415,11 +415,7 @@ aige.model.task = (function () {
      * @returns {undefined}
      */
     removeSubTask = function (object_type, _id, _year, _workingTask, _subtask, callback) {
-        console.log("update working task=" + _workingTask);
-        console.log("id =" + _id);
-        console.log("sub task=" + JSON.stringify(_subtask));
-        stateMap.currentTask = aige.model.general.getCurrentItem(object_type);
-        console.log("current task=" + JSON.stringify(stateMap.currentTask));
+         stateMap.currentTask = aige.model.general.getCurrentItem(object_type);
         var _subtask_array = stateMap.currentTask.removeSubTask(_workingTask, _subtask);
 
         var add_subtask = stateMap.ajaxCall.updateSubtaskInWorkingtask(object_type, _id, _workingTask, _subtask_array);

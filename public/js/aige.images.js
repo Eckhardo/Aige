@@ -56,7 +56,7 @@ aige.images = (function () {
                 $menu = $container.find('#cssmenu'),
                 $content = $container.find('.aige-shell-main-content'),
                 $contentWrapper = $container.find("#contentWrapper");
-     //   $contentWrapper.append($(configMap.image_upload_form_html));
+       $contentWrapper.append($(configMap.image_upload_form_html));
         var fileUploadForm = $contentWrapper.find('#imageUpload');
         jqueryMap = {
             $container: $container,
@@ -101,12 +101,16 @@ aige.images = (function () {
 
     function get_signed_request(file) {
         var xhr = new XMLHttpRequest();
+         console.log("file_name=" + file.name + "&file_type=" + file.type);
         xhr.open("GET", "/sign_s3?file_name=" + file.name + "&file_type=" + file.type);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
+                   console.log("xhr 200");
                     var response = JSON.parse(xhr.responseText);
+                      console.log("xhr 2000");
                     upload_file(file, response.signed_request, response.url);
+                      console.log("xhr 20000");
                 } else {
                     alert("Could not get signed URL.");
                 }
@@ -117,18 +121,24 @@ aige.images = (function () {
 
 
     function upload_file(file, signed_request, url) {
+            console.log("start");
         var xhr = new XMLHttpRequest();
+         console.log("start 2");
         xhr.open("PUT", signed_request);
+         console.log("start 3");
         xhr.setRequestHeader('x-amz-acl', 'public-read');
         xhr.onload = function () {
+             console.log("start 4");
             if (xhr.status === 200) {
                 document.getElementById("preview").src = url;
                 document.getElementById("avatar_url").value = url;
             }
         };
         xhr.onerror = function () {
+             console.log("start 5");
             alert("Could not upload file.");
         };
+         console.log("start 6");
         xhr.send(file);
     }
     // // Begin event handler /onUploadImage/
@@ -166,12 +176,12 @@ aige.images = (function () {
     initModule = function ($container) {
         stateMap.$container = $container;
         setJqueryMap();
- //       jqueryMap.$imageUploadMenu.on('click', onMenuImageUpload);
- //       jqueryMap.$fileUploadForm.on('submit', onUploadImage);
- //       var seed = "https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdfs";
-//$("a").on('click',function(){
- //   $(this).attr('href', $(this).attr('href')+seed);
-//});
+        jqueryMap.$imageUploadMenu.on('click', onMenuImageUpload);
+        jqueryMap.$fileUploadForm.on('submit', onUploadImage);
+        var seed = "https://aige-file-upload.s3.amazonaws.com/AIGE_2015_JHV_Protokoll.pdf";
+$("a").on('click',function(){
+    $(this).attr('href', $(this).attr('href')+seed);
+});
 
         return true;
     };

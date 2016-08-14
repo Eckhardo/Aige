@@ -431,7 +431,7 @@ aige.task = (function () {
 
     // Begin event handler /onAddTask/  
     /**
-     *  adds a hand-written sub task tot he subtas option list
+     *  adds a hand-written sub task to the subtask option list
      * @param {type} event
      * @returns {undefined}
      */
