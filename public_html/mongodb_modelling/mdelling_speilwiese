@@ -1,0 +1,64 @@
+   
+//   db.members
+   
+   members = [
+       {'firstname': 'Eckhard', 'lastname':'Kirschning', 'username': 'Ecki', 'password': 'abc', 'email': 'eckhard.kirschning@freenet.de', 'zip':'20255', 'city':'Hamburg', 'address':'Lutterothtstrasse 89','phone':'040 4913646', 'mobil':'016097023201', 'admissionDate':'2007', 'isAdmin':'true'}
+       ,
+ {'firstname': 'Eckhard', 'lastname':'Kirschning', 'username': 'Ecki', 'password': 'abc', 'email': 'eckhard.kirschning@freenet.de', 'zip':'20255', 'city':'Hamburg', 'address':'Lutterothtstrasse 89','phone':'040 4913646', 'mobil':'016097023201', 'admissionDate':'2007', 'isAdmin':'true'}
+ ,
+  {'firstname': 'Serafim', 'lastname':'Skafidas', 'username': 'Skaffi', 'password': 'abc', 'email': 's.skafidas@freenet.de', 'zip':'25451', 'city':'Quickborn', 'address':'Kieler Strasse 6','phone':'04106 4457', 'mobil':'0160223880', 'admissionDate':'1990', 'isAdmin':'false'}
+ ,{'firstname': 'Torsten', 'lastname':'Kitzmann', 'username': 'Kommu', 'password': 'abc', 'email': 'torsten.kitzmann@freenet.de', 'zip':'25452', 'city':'Hasloh', 'address':'Dorfstrassse 89','phone':'04106 123', 'mobil':'0160999453', 'admissionDate':'1996', 'isAdmin':'false'}
+ ,{'firstname': 'Christian', 'lastname':'Adloff', 'username': 'Chrischi', 'password': 'abc', 'email': 'chris.adloff@freenet.de', 'zip':'25451', 'city':'Quickborn', 'address':'Eschenweg 9','phone':'04106 2257', 'mobil':'0160776655', 'admissionDate':'2000', 'isAdmin':'false'}
+ ,{'firstname': 'Frank', 'lastname':'Schneider', 'username': 'Frankie', 'password': 'abc', 'email': 'frank.schneider@freenet.de', 'zip':'25451', 'city':'Quickborn', 'address':'Ulzuburger Landstrasse 89','phone':'04106 2233', 'mobil':'0160224466', 'admissionDate':'2000', 'isAdmin':'false'}
+
+ ,{'firstname': 'Eckhard', 'lastname':'Kirschning', 'username': 'Ecki', 'password': 'abc', 'email': 'eckhard.kirschning@freenet.de', 'zip':'20255', 'city':'Hamburg', 'address':'Lutterothtstrasse 89','phone':'040 4913646', 'mobil':'016097023201', 'admissionDate':'2007', 'isAdmin':'true'}
+ ,{'firstname': 'Eckhard', 'lastname':'Kirschning', 'username': 'Ecki', 'password': 'abc', 'email': 'eckhard.kirschning@freenet.de', 'zip':'20255', 'city':'Hamburg', 'address':'Lutterothtstrasse 89','phone':'040 4913646', 'mobil':'016097023201', 'admissionDate':'2007', 'isAdmin':'true'}
+ ,{'firstname': 'Eckhard', 'lastname':'Kirschning', 'username': 'Ecki', 'password': 'abc', 'email': 'eckhard.kirschning@freenet.de', 'zip':'20255', 'city':'Hamburg', 'address':'Lutterothtstrasse 89','phone':'040 4913646', 'mobil':'016097023201', 'admissionDate':'2007', 'isAdmin':'true'}
+ 
+    ];
+    
+  //  db.membership
+        var membership2015 = 
+ {'_id':  'aige_2015', 'saison': new Date(2015,1,1), 'comment': " AIGE Mitgliederliste fuer 2015", 'members' :[ "551eb42895dbe8a3b30a838","551eb54c95dbe8a3b30a838a", "55210a0f038139e55c916076","55210a8f038139e55c916077" ]}
+ //  db.membersubscription
+ 
+    var membershipdetails = {
+            _id: 2015,
+            blabla: "",
+            members :[ ObjectID('id_01'),ObjectID('id_01'), ObjectID('id_01')]
+        };
+
+membership
+viele Member
+
+var membershipDetails:
+
+membership: ObjectId
+user: ObjectId
+ feesPaid: false,
+
+// EVENTS
+
+//
+//[ "Arbeitsdienst", "Ersatz-Arbeitsddienst",  "Angeln", "Jahreshauptversammlung", "Sonstiges"],
+{
+_id: id,
+type: type,
+name: name,
+shortname:shortname,
+startDate: startDate,
+endDate: endDate,
+meetingPoint:meetingPoint
+comments: comments
+isActive:isActive
+       
+ 
+}
+
+YYYY-MM-DDTHH:mm:ss.mmm<+/-Offset>
+new Date(2015-04-01T07:00:00:000<-1>)
+ db.event.insert({'type': 'Arbeitsdienst', 'name':'1. Arbeitsdienst', 'shortname':'AD-1','startDate':'07/05/2015','startTime': "12:00",'endTime': "12:00", 'meetingPoint':'Elsensee','comments':'Wathosen mitbringen','isActive':'true'});
+ db.event.insert({'type': 'Arbeitsdienst', 'name':'2. Arbeitsdienst', 'shortname':'AD-2','startDate':'09/09/2015','startTime': "07:00",'endTime': "12:00",'meetingPoint':'Elsensee','comments':'Schaufeln mitbringen','isActive':'true'});
+ db.event.insert({'type': 'Versammlung', 'name':'Jahreshauptversamlung', 'shortname':'JHV','startDate':'12/05/2015','startTime': "07:00",'endTime': "12:00",'meetingPoint':'Rosa-Scholl-Haus','comments':'Appetit mitbringen','isActive':'true'});
+
+db.membership.insert( {'name': 'Saison 2015', 'year':'2015', 'members': ['Chrischi', 'Ecki'], 'events': [''],'comments':'my comment', 'isActive':true});

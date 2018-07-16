@@ -1,39 +1,21 @@
-# node-js-getting-started
 
-A barebones Node.js app using [Express 4](http://expressjs.com/).
+# Aige (by Eckhard Kirschning)
+#  Aige is development project for the establishment of a Single Page Applicaton (SPA) using Java Script (JS) end-to-end. The focus lies # on the combination of JS technologies by pushing UI rendering and business logic to the browser and  
+# communicating with the server and the database only to synchronize data by exchanging data in JSON (JavaScript Serialized Object
+# Notation) format.
 
-This application supports the [Getting Started with Node on Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs) article - check it out.
+# Frontend development is based on pure JS without using any SPA or templating frameworks (like Angular.js or Jade). However, JQuery and 
+# some of its many available libraries are being used for e.g DOM manipulation, form validation or the integration of complex Ui
+# components, like datepicker, timepicker, menues or picklist.
 
-## Running Locally
+# Backend development on the other side is based on the Node.js JS platform (for the establishment of a HTTP Server), the middleware  
+# Express.js as a server-side web framework to listen to incoming requests and returning relevant responses, directing URLs to distinct
+# pieces of code (advanced routing),  serving static files  and http session management.
 
-Make sure you have [Node.js](http://nodejs.org/) and the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed.
+# To complete the full JS end-to-end stack MongoDB as a document storing database is introduced which uses Binary JSON  (BSON) for data 
+# storage. Additionally, Mongoskin is used as a small and basic MongoDB driver.
 
-```sh
-$ git clone git@github.com:heroku/node-js-getting-started.git # or clone your own fork
-$ cd node-js-getting-started
-$ npm install
-$ npm start
-```
+# The general software archtitecture was mostly influenced by Michael. S. Mikowski, the author of 'Single Page Web Applications' (Manning
+# Publications Co). Most prominent features are: Model-View-Controller design pattern, the module pattern for the establishment of
+# defined namespaces and  application programming interfaces (API) by utilizing immediately invoked function expressions (IIFE) .
 
-Your app should now be running on [localhost:5000](http://localhost:5000/).
-
-## Deploying to Heroku
-
-```
-$ heroku create
-$ git push heroku master
-$ heroku open
-```
-or
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
-## Documentation
-
-For more information about using Node.js on Heroku, see these Dev Center articles:
-
-- [Getting Started with Node.js on Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs)
-- [Heroku Node.js Support](https://devcenter.heroku.com/articles/nodejs-support)
-- [Node.js on Heroku](https://devcenter.heroku.com/categories/nodejs)
-- [Best Practices for Node.js Development](https://devcenter.heroku.com/articles/node-best-practices)
-- [Using WebSockets on Heroku with Node.js](https://devcenter.heroku.com/articles/node-websockets)
